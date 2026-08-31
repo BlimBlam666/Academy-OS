@@ -12,16 +12,16 @@
     {id:"scorer",name:"Tournament Scorer",group:"Training",description:"Bear Pit, single-elimination, and double-elimination scoring.",url:"https://blimblam666.github.io/Academy_Tournament_Scorer/"},
     {id:"ork",name:"ORK",group:"Amtgard",description:"Amtgard records, park, household, and awards resources.",url:"https://ork.amtgard.com/orkui/"},
     {id:"github",name:"Academy OS Repository",group:"System",description:"Source, documentation, releases, and change history.",url:"https://github.com/BlimBlam666/Academy-OS"},
-    {id:"youtube",name:"Academy YouTube",group:"Publishing",description:"Video lessons, practice recaps, and demonstrations.",url:""},
-    {id:"facebook",name:"Academy Facebook",group:"Publishing",description:"Community announcements and event stories.",url:""},
-    {id:"instagram",name:"Academy Instagram",group:"Publishing",description:"Short visual lessons and field moments.",url:""},
-    {id:"patreon",name:"Academy Patreon",group:"Publishing",description:"Supporter updates and deeper behind-the-scenes material.",url:""}
+    {id:"youtube",name:"Academy YouTube",group:"Publishing",description:"Video lessons, practice recaps, and demonstrations.",url:"https://www.youtube.com/@AcademyofMercenaryArts"},
+    {id:"facebook",name:"Academy Facebook",group:"Publishing",description:"Community announcements and event stories.",url:"https://www.facebook.com/profile.php?id=61591424160727"},
+    {id:"instagram",name:"Academy Instagram",group:"Publishing",description:"Short visual lessons and field moments.",url:"https://www.instagram.com/academyofmercenaryarts/"},
+    {id:"patreon",name:"Academy Patreon",group:"Publishing",description:"Supporter updates and deeper behind-the-scenes material.",url:"https://www.patreon.com/cw/AcademyOfMercenaryArts"}
   ];
 
   var defaultState = {
     quests: [
       {id:"q-theme",text:"Install and select the Academy Omarchy theme",done:false},
-      {id:"q-gates",text:"Add the verified Academy social URLs",done:false},
+      {id:"q-gates",text:"Verified Academy social gates connected",done:true},
       {id:"q-pilot",text:"Prepare the January 6 F201 pilot",done:false}
     ],
     practiceChecks:{},

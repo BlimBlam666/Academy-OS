@@ -66,26 +66,26 @@
     {
       "id": "youtube",
       "name": "Academy YouTube",
-      "status": "needs_url",
-      "url": null
+      "status": "connected",
+      "url": "https://www.youtube.com/@AcademyofMercenaryArts"
     },
     {
       "id": "facebook",
       "name": "Academy Facebook",
-      "status": "needs_url",
-      "url": null
+      "status": "connected",
+      "url": "https://www.facebook.com/profile.php?id=61591424160727"
     },
     {
       "id": "instagram",
       "name": "Academy Instagram",
-      "status": "needs_url",
-      "url": null
+      "status": "connected",
+      "url": "https://www.instagram.com/academyofmercenaryarts/"
     },
     {
       "id": "patreon",
       "name": "Academy Patreon",
-      "status": "needs_url",
-      "url": null
+      "status": "connected",
+      "url": "https://www.patreon.com/cw/AcademyOfMercenaryArts"
     }
   ]
 }
