@@ -20,7 +20,7 @@ for (const file of requiredFiles) {
 }
 
 const html = readFileSync("index.html", "utf8");
-for (const marker of ["command-hall", "practice-forge", "content-foundry", "gatehouse", "f201"]) {
+for (const marker of ["view-hall", "view-practice", "view-content", "view-integrations", "f201"]) {
   if (!html.toLowerCase().includes(marker)) throw new Error(`Missing interface marker: ${marker}`);
 }
 
