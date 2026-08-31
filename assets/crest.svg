@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 190" role="img" aria-labelledby="title desc">
+<title id="title">Academy of Mercenary Arts crest</title>
+<desc id="desc">A brass shield bearing a sword and thistle.</desc>
+<defs>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#efd28b"/><stop offset=".48" stop-color="#c69b4b"/><stop offset="1" stop-color="#76551f"/></linearGradient>
+  <linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#27221b"/><stop offset="1" stop-color="#12110f"/></linearGradient>
+</defs>
+<path d="M80 5 145 27l-8 100c-5 28-29 48-57 58-28-10-52-30-57-58L15 27Z" fill="url(#field)" stroke="url(#metal)" stroke-width="7"/>
+<path d="M80 22 128 38l-6 82c-4 20-20 36-42 46-22-10-38-26-42-46l-6-82Z" fill="none" stroke="#7e5a8e" stroke-width="3" opacity=".8"/>
+<path d="m82 39 7 10-5 70-4 15-4-15-5-70 7-10Z" fill="url(#metal)"/>
+<path d="M56 117h48l-8 10H64Z" fill="url(#metal)"/>
+<path d="m80 30 10 15-10 8-10-8Z" fill="#e8dcc0"/>
+<g fill="#7e5a8e" stroke="#c69b4b" stroke-width="2">
+  <path d="M48 74c-14-8-22 9-10 18-15 3-11 22 4 20-7 14 11 23 20 10 7 14 26 5 20-10 15 2 19-17 4-20 12-9 4-26-10-18-4-15-24-15-28 0Z"/>
+  <path d="M102 74c-14-8-22 9-10 18-15 3-11 22 4 20-7 14 11 23 20 10 7 14 26 5 20-10 15 2 19-17 4-20 12-9 4-26-10-18-4-15-24-15-28 0Z" transform="translate(-16 0)"/>
+</g>
+<circle cx="80" cy="94" r="10" fill="#c69b4b"/>
+</svg>

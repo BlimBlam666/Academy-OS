@@ -1,0 +1,23 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Check JavaScript syntax
+        run: node --check app.js
+      - name: Run dependency-free smoke tests
+        run: node tests/smoke.mjs

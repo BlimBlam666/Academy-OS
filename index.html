@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#12110f">
+  <meta name="description" content="Academy of Mercenary Arts Command Hall">
+  <title>Academy OS · Command Hall</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/crest.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to command content</a>
+  <div class="atmosphere" aria-hidden="true"></div>
+  <header class="masthead">
+    <div class="brand">
+      <img src="assets/crest.svg" alt="" class="crest">
+      <div>
+        <p class="eyebrow">Academy of Mercenary Arts</p>
+        <h1>Command Hall</h1>
+        <p class="motto">Developing Fighters. Building Warlords.</p>
+      </div>
+    </div>
+    <div class="watch">
+      <span id="clock">--:--</span>
+      <span id="today">Preparing the watch…</span>
+    </div>
+  </header>
+
+  <nav class="command-nav" aria-label="Academy OS sections">
+    <button class="nav-button active" data-view="hall">Command Hall</button>
+    <button class="nav-button" data-view="practice">Practice Forge</button>
+    <button class="nav-button" data-view="content">Content Foundry</button>
+    <button class="nav-button" data-view="integrations">Gatehouse</button>
+  </nav>
+
+  <main id="main">
+    <section class="view active" id="view-hall">
+      <div class="hero panel">
+        <div>
+          <p class="eyebrow">Phase I · Field Prototype</p>
+          <h2>One place to command the Academy.</h2>
+          <p>Gather the knowledge, prepare the field, record what happened, and turn worthy moments into stories that invite the next fighter through the gate.</p>
+        </div>
+        <div class="next-event">
+          <span class="sigil">I</span>
+          <div>
+            <small>First pilot</small>
+            <strong>F201 · Footwork 101</strong>
+            <span>Wednesday, January 6, 2027 · 7–9 PM</span>
+            <span id="countdown">Calculating the march…</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <article class="panel span-two">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Gatehouse</p>
+              <h3>Quick Launch</h3>
+            </div>
+            <button class="quiet-button" data-go="integrations">Manage gates</button>
+          </div>
+          <div id="quick-links" class="quick-links"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Quest Ledger</p>
+              <h3>Active Work</h3>
+            </div>
+            <span id="quest-count" class="count-badge">0</span>
+          </div>
+          <form id="quest-form" class="inline-form">
+            <label class="sr-only" for="quest-input">New quest</label>
+            <input id="quest-input" maxlength="120" placeholder="Name the next useful action" required>
+            <button class="primary-button" type="submit">Add</button>
+          </form>
+          <div id="quest-list" class="quest-list"></div>
+        </article>
+
+        <article class="panel">
+          <p class="eyebrow">Whole-Fighter Doctrine</p>
+          <h3>Five disciplines</h3>
+          <div class="doctrine-list">
+            <span><b>Body</b> readiness and endurance</span>
+            <span><b>Craft</b> technique and equipment</span>
+            <span><b>Mind</b> judgment and adaptation</span>
+            <span><b>Character</b> discipline and courage</span>
+            <span><b>Fellowship</b> teaching and belonging</span>
+          </div>
+        </article>
+
+        <article class="panel span-two">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Captain's Chronicle</p>
+              <h3>Recent Field Notes</h3>
+            </div>
+            <button class="quiet-button" data-go="practice">Write an AAR</button>
+          </div>
+          <div id="chronicle-list" class="chronicle-list empty-state">No entries yet. The first honest record begins the archive.</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-practice">
+      <div class="section-intro">
+        <div>
+          <p class="eyebrow">Practice Forge · Pilot 01</p>
+          <h2>F201 · Footwork 101</h2>
+          <p>Move with purpose. Recover with discipline.</p>
+        </div>
+        <a class="primary-button link-button" href="https://drive.google.com/file/d/1G1nnnYGI52_RrJmtDNSTHn6YJ-EJeYJ6/view" target="_blank" rel="noopener">Open source course</a>
+      </div>
+
+      <div class="practice-layout">
+        <article class="panel runbook">
+          <div class="runbook-meta">
+            <span>January 6, 2027</span><span>7:00–9:00 PM</span><span>F201</span>
+          </div>
+          <h3>Field Runbook</h3>
+          <p class="subtle">Check each stage as it is completed. Progress remains on this device.</p>
+          <div id="practice-progress" class="progress-track"><span></span></div>
+          <ol class="timeline">
+            <li>
+              <label><input type="checkbox" data-practice-check="prep"> <span><b>6:45 · Preparation — 15 minutes</b>Inspect surface and hazards; set cone lane; stage foam weapons and shields; establish safe spacing.</span></label>
+            </li>
+            <li>
+              <label><input type="checkbox" data-practice-check="opening"> <span><b>7:00 · Muster, safety, and purpose — 10 minutes</b>Welcome cadets, check readiness, state the Whole-Fighter goal, and read the opening script.</span></label>
+            </li>
+            <li>
+              <label><input type="checkbox" data-practice-check="warmup"> <span><b>7:10 · Warm-up and ready stance — 15 minutes</b>Raise temperature, mobilize ankles and hips, then review F104 stance and F110 basic movement.</span></label>
+            </li>
+            <li>
+              <label><input type="checkbox" data-practice-check="lesson"> <span><b>7:25 · F201 instruction — 30 minutes</b>Teach movement purpose, low feet, separate tracks, small steps, live guard, and recovery. Run Four-Direction Forge and Moving Guard Lane.</span></label>
+            </li>
+            <li>
+              <label><input type="checkbox" data-practice-check="drill"> <span><b>7:55 · Partner practice — 25 minutes</b>Run Mirror Step and One Step, One Purpose. Partners identify close, exit, angle, or reset before moving.</span></label>
+            </li>
+            <li>
+              <label><input type="checkbox" data-practice-check="pressure"> <span><b>8:20 · Pressure test — 30 minutes</b>Use controlled sparring or a simple militia game. Reward purposeful movement and immediate stance recovery, not raw wins.</span></label>
+            </li>
+            <li>
+              <label><input type="checkbox" data-practice-check="close"> <span><b>8:50 · Passing standard and close — 10 minutes</b>Cadets demonstrate four directions, pivot, live guard, recovery, and the purpose of a chosen movement.</span></label>
+            </li>
+            <li>
+              <label><input type="checkbox" data-practice-check="aar"> <span><b>9:00 · Post-practice closeout — 20 minutes</b>Account for equipment, record attendance privately, complete the AAR, preserve approved media, and name the next improvement.</span></label>
+            </li>
+          </ol>
+          <details class="scripture">
+            <summary>Opening and closing scripts</summary>
+            <blockquote>“The feet begin the fight before the sword moves. Footwork is not speed for its own sake. It is how we place the body where it can defend, attack, and survive. A small step taken with purpose is better than a brave leap into ruin.”</blockquote>
+            <blockquote>“A fighter who moves without purpose is carried by habit. A fighter who moves with purpose becomes hard to find and harder to fool. Step well. Recover well. Continue.”</blockquote>
+          </details>
+        </article>
+
+        <aside>
+          <article class="panel">
+            <p class="eyebrow">Passing Standard</p>
+            <h3>Cadet can…</h3>
+            <ul class="standard-list">
+              <li>Move safely in four directions</li>
+              <li>Pivot to face an opponent</li>
+              <li>Keep guard alive while moving</li>
+              <li>Recover stance after every step</li>
+              <li>Name the purpose of movement</li>
+            </ul>
+          </article>
+          <article class="panel">
+            <p class="eyebrow">Coaching Cues</p>
+            <div class="cue-cloud">
+              <span>Separate tracks</span><span>Feet low</span><span>Guard alive</span><span>Ready again</span>
+            </div>
+          </article>
+        </aside>
+      </div>
+
+      <article class="panel aar-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">After-Action Review</p><h3>Turn experience into doctrine</h3></div>
+          <button id="send-to-foundry" class="quiet-button" type="button">Send to Foundry</button>
+        </div>
+        <form id="aar-form" class="form-grid">
+          <label>What happened?<textarea id="aar-happened" rows="3" required placeholder="Facts first: attendance, drills completed, notable events"></textarea></label>
+          <label>What worked?<textarea id="aar-worked" rows="3" required placeholder="Behaviors and methods worth repeating"></textarea></label>
+          <label>What needs improvement?<textarea id="aar-improve" rows="3" required placeholder="One clear obstacle or failure mode"></textarea></label>
+          <label>What happens next?<textarea id="aar-next" rows="3" required placeholder="Owner, action, and intended result"></textarea></label>
+          <label class="span-two">Public story seed<textarea id="aar-story" rows="2" placeholder="A public, consent-safe moment worth sharing"></textarea></label>
+          <button class="primary-button" type="submit">Seal Chronicle Entry</button>
+        </form>
+      </article>
+    </section>
+
+    <section class="view" id="view-content">
+      <div class="section-intro">
+        <div><p class="eyebrow">Content Foundry</p><h2>One moment, four useful drafts.</h2><p>Generate a campaign package locally, review it, then publish by hand.</p></div>
+        <button id="copy-ai-brief" class="quiet-button" type="button">Copy AI brief</button>
+      </div>
+
+      <div class="content-grid">
+        <article class="panel">
+          <h3>Campaign source</h3>
+          <form id="content-form" class="stack-form">
+            <label>Event or lesson<input id="content-event" required value="F201 · Footwork 101"></label>
+            <label>Audience<input id="content-audience" value="new and developing foam fighters"></label>
+            <label>The moment<textarea id="content-moment" rows="3" required placeholder="What actually happened?"></textarea></label>
+            <label>The lesson<textarea id="content-lesson" rows="3" required placeholder="What can someone learn or try?"></textarea></label>
+            <label>Call to action<input id="content-cta" value="Join us at the next Academy practice."></label>
+            <label>Consent check<select id="content-consent"><option value="No identifiable people or private details">No identifiable people or private details</option><option value="Consent confirmed for every identifiable person">Consent confirmed for every identifiable person</option><option value="Needs consent before publishing">Needs consent before publishing</option></select></label>
+            <button class="primary-button" type="submit">Forge Campaign Drafts</button>
+          </form>
+        </article>
+
+        <article class="panel draft-panel">
+          <div class="draft-tabs" role="tablist" aria-label="Campaign drafts">
+            <button class="draft-tab active" data-draft="facebook">Facebook</button>
+            <button class="draft-tab" data-draft="instagram">Instagram</button>
+            <button class="draft-tab" data-draft="youtube">YouTube</button>
+            <button class="draft-tab" data-draft="patreon">Patreon</button>
+          </div>
+          <label class="draft-editor">Review draft
+            <textarea id="draft-output" rows="16" placeholder="Complete the campaign source to forge a draft."></textarea>
+          </label>
+          <div class="button-row">
+            <button id="copy-draft" class="primary-button" type="button">Copy draft</button>
+            <button id="queue-draft" class="quiet-button" type="button">Add to review queue</button>
+          </div>
+          <p class="safety-note">No automatic posting. Verify facts, permission, platform fit, and links before publication.</p>
+        </article>
+      </div>
+
+      <article class="panel">
+        <div class="panel-heading"><div><p class="eyebrow">Approval Queue</p><h3>Capture → Draft → Review → Schedule → Publish</h3></div></div>
+        <div id="content-queue" class="content-queue empty-state">Nothing is waiting. Forge a campaign draft when a real moment deserves a wider life.</div>
+      </article>
+    </section>
+
+    <section class="view" id="view-integrations">
+      <div class="section-intro">
+        <div><p class="eyebrow">Gatehouse</p><h2>Academy connections</h2><p>URLs live here. Passwords and tokens never do.</p></div>
+        <button id="open-settings" class="primary-button" type="button">Configure gates</button>
+      </div>
+      <div id="integration-grid" class="integration-grid"></div>
+      <article class="panel trust-panel">
+        <h3>Trust boundary</h3>
+        <p>The Command Hall opens authorized services in their own sites. It does not collect credentials, impersonate a user, publish automatically, or place private member information in GitHub. Connections marked “Needs URL” are deliberately unfinished rather than guessed.</p>
+        <div class="button-row">
+          <button id="export-data" class="quiet-button" type="button">Export local data</button>
+          <label class="quiet-button file-button">Import local data<input id="import-data" type="file" accept="application/json"></label>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <dialog id="settings-dialog">
+    <form id="settings-form" method="dialog">
+      <div class="dialog-heading"><div><p class="eyebrow">Gatehouse Settings</p><h2>Public URLs only</h2></div><button class="icon-button" value="cancel" aria-label="Close">×</button></div>
+      <p class="subtle">Add the exact Academy pages when available. These settings remain in this browser.</p>
+      <div id="settings-fields" class="settings-fields"></div>
+      <div class="button-row"><button class="primary-button" value="default" type="submit">Save gates</button><button class="quiet-button" value="cancel">Cancel</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <footer><span>Academy OS · Phase I</span><span>Public code. Local records. Human judgment.</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>

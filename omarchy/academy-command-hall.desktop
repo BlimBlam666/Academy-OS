@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Academy Command Hall
+Comment=Run Academy operations, practice, and content workflows
+Exec=xdg-open https://blimblam666.github.io/Academy-OS/
+Icon=applications-education
+Terminal=false
+Categories=Office;Education;
+StartupNotify=true

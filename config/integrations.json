@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "generated": "2026-08-31",
+  "security": "Public URLs only. No passwords, tokens, rosters, or private records.",
+  "authority": [
+    "Academy Google Drive",
+    "Existing Academy applications and sites",
+    "Local operator notes",
+    "Generated drafts awaiting review"
+  ],
+  "integrations": [
+    {
+      "id": "drive",
+      "name": "Academy Google Drive",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1ZCjtQF8rzy37uZpsFJsVTqD_C6YrSV0K"
+    },
+    {
+      "id": "f100",
+      "name": "F100 Courses",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1Ycxt3eS_C6mU2CHCjaTIeh0FhslAJvVG"
+    },
+    {
+      "id": "f200",
+      "name": "F200 Courses",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1nrMhYEzZjOEvJW6VEzdxbRAFonJ1H-y8"
+    },
+    {
+      "id": "f201",
+      "name": "F201 Footwork 101",
+      "status": "connected",
+      "url": "https://drive.google.com/file/d/1G1nnnYGI52_RrJmtDNSTHn6YJ-EJeYJ6/view"
+    },
+    {
+      "id": "fighterCoach",
+      "name": "Academy Fighter Coach",
+      "status": "connected",
+      "url": "https://blimblam666.github.io/foam-fighting-mobile-coach/"
+    },
+    {
+      "id": "fighterCoachSite",
+      "name": "Academy Fighter Coach ChatGPT Site",
+      "status": "connected",
+      "url": "https://academy-fighter-coach.blimblam.chatgpt.site"
+    },
+    {
+      "id": "scorer",
+      "name": "Academy Tournament Scorer",
+      "status": "connected",
+      "url": "https://blimblam666.github.io/Academy_Tournament_Scorer/"
+    },
+    {
+      "id": "ork",
+      "name": "ORK",
+      "status": "connected",
+      "url": "https://ork.amtgard.com/orkui/"
+    },
+    {
+      "id": "calendar",
+      "name": "Google Calendar",
+      "status": "connected",
+      "url": "https://calendar.google.com/calendar/u/0/r"
+    },
+    {
+      "id": "youtube",
+      "name": "Academy YouTube",
+      "status": "needs_url",
+      "url": null
+    },
+    {
+      "id": "facebook",
+      "name": "Academy Facebook",
+      "status": "needs_url",
+      "url": null
+    },
+    {
+      "id": "instagram",
+      "name": "Academy Instagram",
+      "status": "needs_url",
+      "url": null
+    },
+    {
+      "id": "patreon",
+      "name": "Academy Patreon",
+      "status": "needs_url",
+      "url": null
+    }
+  ]
+}
