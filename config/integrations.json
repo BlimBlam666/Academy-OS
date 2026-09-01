@@ -1,89 +1,263 @@
 {
-  "version": 1,
-  "generated": "2026-08-31",
-  "security": "Public URLs only. No passwords, tokens, rosters, or private records.",
+  "version": 2,
+  "generated": "2026-09-01",
+  "security": "Public and shared URLs only. No passwords, tokens, rosters, private records, or unpublished member data are copied into Academy OS.",
+  "access": "Google Drive permissions remain authoritative; Academy OS only provides gates to source material.",
   "authority": [
-    "Academy Google Drive",
+    "Current official Amtgard Rules of Play, Dragonspine Corpora, and authorized field officials",
+    "Academy Google Drive source documents",
     "Existing Academy applications and sites",
     "Local operator notes",
-    "Generated drafts awaiting review"
+    "Generated drafts awaiting human review"
   ],
+  "catalog": {
+    "confirmedCourses": 162,
+    "confirmedTracks": [
+      "Fighter Course Track (F100–F500)",
+      "Dragonspine Civic Arms (DS100–DS500)"
+    ],
+    "referenceTracks": [
+      "Class Arts",
+      "Ladder Awards",
+      "Knighthood Paths"
+    ]
+  },
   "integrations": [
     {
       "id": "drive",
-      "name": "Academy Google Drive",
+      "name": "Academy Drive Gateway",
+      "group": "Knowledge",
       "status": "connected",
-      "url": "https://drive.google.com/drive/folders/1ZCjtQF8rzy37uZpsFJsVTqD_C6YrSV0K"
+      "url": "https://drive.google.com/drive/folders/1bw6dw3yUQCiJUqgSV7lUnwkm0rTHIe6o"
+    },
+    {
+      "id": "courseLibrary",
+      "name": "Academy Course Library",
+      "group": "Curriculum",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1WztnlzH92ZBptMBQWhPNRANSnYN4EHBG"
+    },
+    {
+      "id": "masterIndex",
+      "name": "Master Course Index",
+      "group": "Curriculum",
+      "status": "connected",
+      "url": "https://docs.google.com/document/d/16SvSi0lz-DXJUWytMTI59WJ-RqfCgOunYFQTm7kwyZA/edit"
+    },
+    {
+      "id": "fighterTrack",
+      "name": "Fighter Course Track",
+      "group": "Curriculum",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1x8_Eca7SITmiRkp1lGcU9DbUjrjmuMHR"
     },
     {
       "id": "f100",
-      "name": "F100 Courses",
+      "name": "F100 Recruit Foundations",
+      "group": "Curriculum",
       "status": "connected",
-      "url": "https://drive.google.com/drive/folders/1Ycxt3eS_C6mU2CHCjaTIeh0FhslAJvVG"
+      "url": "https://drive.google.com/drive/folders/1lH4BRvPuKzKZR6VzTRh4qAHiOdQVr9LQ"
     },
     {
       "id": "f200",
-      "name": "F200 Courses",
+      "name": "F200 Cadet Fundamentals",
+      "group": "Curriculum",
       "status": "connected",
       "url": "https://drive.google.com/drive/folders/1nrMhYEzZjOEvJW6VEzdxbRAFonJ1H-y8"
     },
     {
       "id": "f201",
-      "name": "F201 Footwork 101",
+      "name": "F201 · Footwork 101",
+      "group": "Curriculum",
       "status": "connected",
       "url": "https://drive.google.com/file/d/1G1nnnYGI52_RrJmtDNSTHn6YJ-EJeYJ6/view"
     },
     {
+      "id": "civicTrack",
+      "name": "Dragonspine Civic Arms",
+      "group": "Curriculum",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1jwQzCyccNzgtK7NHwympeLk0qWEfYB5t"
+    },
+    {
+      "id": "classTrack",
+      "name": "Class Arts Library",
+      "group": "Reference",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1dHXezQLGMSfxYqOulcdzK2wfd7G3C4Sg"
+    },
+    {
+      "id": "ladderTrack",
+      "name": "Ladder Awards Series",
+      "group": "Reference",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1CN1SxTAIky6kKHjRw-Qwta1hrCIHauru"
+    },
+    {
+      "id": "knighthoodTrack",
+      "name": "Knighthood Path Series",
+      "group": "Reference",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1G7iSBARmB6Ec0J1CnKnxEr-oaJMpWDNi"
+    },
+    {
+      "id": "academyResources",
+      "name": "Academy Resource Library",
+      "group": "Knowledge",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1bw6dw3yUQCiJUqgSV7lUnwkm0rTHIe6o"
+    },
+    {
+      "id": "preceptorsManual",
+      "name": "Preceptor's Manual",
+      "group": "Teaching",
+      "status": "connected",
+      "url": "https://docs.google.com/document/d/1sAgI7-p00wGdOURvhpUkq9kvkcrWZuuGFuix3XIrh2c/edit"
+    },
+    {
+      "id": "cadetFieldbook",
+      "name": "Cadet Fieldbook",
+      "group": "Training",
+      "status": "connected",
+      "url": "https://docs.google.com/document/d/1ivdeQW42NpnnY7T-_cP1Pke4Odm8YbNGuQ5xQB0hWTw/edit"
+    },
+    {
+      "id": "academyCorpora",
+      "name": "Academy Corpora",
+      "group": "Governance",
+      "status": "connected",
+      "url": "https://docs.google.com/document/d/1ulSVbHtuWTzcc79tVgcSqkUTfwG5TnRpsrv0YZqz67s/edit"
+    },
+    {
+      "id": "rulesSource",
+      "name": "Rules of Play 8.7 Source",
+      "group": "Authority",
+      "status": "connected",
+      "url": "https://docs.google.com/document/d/1yMKmMHu2vU3CKmlQeQyvpwv-ETx5kNNr5sfuxnk3DP0/edit"
+    },
+    {
+      "id": "teachingVisuals",
+      "name": "Teaching Flowcharts",
+      "group": "Teaching",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1f1dtzaof2-ULh0zarj_GdTsKSdDDsnyi"
+    },
+    {
+      "id": "creativeAssets",
+      "name": "Creative Asset Foundry",
+      "group": "Publishing",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1OKAOEObgNh03jKNBLepytDLeO20oBurs"
+    },
+    {
+      "id": "trainingEngine",
+      "name": "Tabletop Training Engine",
+      "group": "Training",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1zBBTAeKFhb5Y2PMF1IJyh91qOSssYk7u"
+    },
+    {
+      "id": "heraldry",
+      "name": "Academy Heraldry",
+      "group": "Identity",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1yHmetyIyWEirn6dPdzTM0oSkLhBw_Pjo"
+    },
+    {
+      "id": "reignOperations",
+      "name": "Black Root Reign Operations",
+      "group": "Operations",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/1nQuXShQyDknrgEbDWuuS3sochCKyix8G"
+    },
+    {
+      "id": "reignHandbook",
+      "name": "Reign Operations Handbook",
+      "group": "Operations",
+      "status": "connected",
+      "url": "https://docs.google.com/document/d/1a0bKs7j8OiCUkF-p8w3nHPKVJ3mNA9EC/edit"
+    },
+    {
+      "id": "reignAgenda",
+      "name": "Black Root Reign Agenda",
+      "group": "Operations",
+      "status": "connected",
+      "url": "https://docs.google.com/document/d/1QCjx0DLe1HtQBz_f-LGqWxhS8AmHzzCD/edit"
+    },
+    {
+      "id": "blackRootBook",
+      "name": "Black Root Reign Book",
+      "group": "Operations",
+      "status": "connected",
+      "url": "https://docs.google.com/document/d/1NcYgnK_LOC_pzmAqaKfF6HM-LYJODPGOSaRL263JRx8/edit"
+    },
+    {
+      "id": "blackRootPublic",
+      "name": "Black Root Public Sheets",
+      "group": "Operations",
+      "status": "connected",
+      "url": "https://drive.google.com/drive/folders/10PcE5AvBzc62Cy5bB6Lptu3g1eocZBVU"
+    },
+    {
+      "id": "calendar",
+      "name": "Academy Calendar",
+      "group": "Operations",
+      "status": "connected",
+      "url": "https://calendar.google.com/calendar/u/0/r"
+    },
+    {
       "id": "fighterCoach",
       "name": "Academy Fighter Coach",
+      "group": "Training",
       "status": "connected",
       "url": "https://blimblam666.github.io/foam-fighting-mobile-coach/"
     },
     {
-      "id": "fighterCoachSite",
-      "name": "Academy Fighter Coach ChatGPT Site",
-      "status": "connected",
-      "url": "https://academy-fighter-coach.blimblam.chatgpt.site"
-    },
-    {
       "id": "scorer",
-      "name": "Academy Tournament Scorer",
+      "name": "Tournament Scorer",
+      "group": "Training",
       "status": "connected",
       "url": "https://blimblam666.github.io/Academy_Tournament_Scorer/"
     },
     {
       "id": "ork",
       "name": "ORK",
+      "group": "Amtgard",
       "status": "connected",
       "url": "https://ork.amtgard.com/orkui/"
     },
     {
-      "id": "calendar",
-      "name": "Google Calendar",
+      "id": "github",
+      "name": "Academy OS Repository",
+      "group": "System",
       "status": "connected",
-      "url": "https://calendar.google.com/calendar/u/0/r"
+      "url": "https://github.com/BlimBlam666/Academy-OS"
     },
     {
       "id": "youtube",
       "name": "Academy YouTube",
+      "group": "Publishing",
       "status": "connected",
       "url": "https://www.youtube.com/@AcademyofMercenaryArts"
     },
     {
       "id": "facebook",
       "name": "Academy Facebook",
+      "group": "Publishing",
       "status": "connected",
       "url": "https://www.facebook.com/profile.php?id=61591424160727"
     },
     {
       "id": "instagram",
       "name": "Academy Instagram",
+      "group": "Publishing",
       "status": "connected",
       "url": "https://www.instagram.com/academyofmercenaryarts/"
     },
     {
       "id": "patreon",
       "name": "Academy Patreon",
+      "group": "Publishing",
       "status": "connected",
       "url": "https://www.patreon.com/cw/AcademyOfMercenaryArts"
     }

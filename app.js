@@ -4,9 +4,31 @@
   var STORAGE_KEY = "academyOS.phase1.v1";
   var STAGES = ["Captured", "Drafted", "Reviewed", "Scheduled", "Published"];
   var INTEGRATIONS = [
-    {id:"drive",name:"Academy Google Drive",group:"Knowledge",description:"Authoritative Academy source library.",url:"https://drive.google.com/drive/folders/1ZCjtQF8rzy37uZpsFJsVTqD_C6YrSV0K"},
-    {id:"f100",name:"F100 Courses",group:"Curriculum",description:"Foundation fighter course library.",url:"https://drive.google.com/drive/folders/1Ycxt3eS_C6mU2CHCjaTIeh0FhslAJvVG"},
-    {id:"f200",name:"F200 Courses",group:"Curriculum",description:"Cadet fundamentals, beginning with F201.",url:"https://drive.google.com/drive/folders/1nrMhYEzZjOEvJW6VEzdxbRAFonJ1H-y8"},
+    {id:"drive",name:"Academy Drive Gateway",group:"Knowledge",description:"The Academy's shared Drive entry point and source network.",url:"https://drive.google.com/drive/folders/1bw6dw3yUQCiJUqgSV7lUnwkm0rTHIe6o"},
+    {id:"courseLibrary",name:"Academy Course Library",group:"Curriculum",description:"Master curriculum library for fighter, civic, class, ladder, and knighthood tracks.",url:"https://drive.google.com/drive/folders/1WztnlzH92ZBptMBQWhPNRANSnYN4EHBG"},
+    {id:"masterIndex",name:"Master Course Index",group:"Curriculum",description:"Authoritative catalog of 162 confirmed F-series and DS-series courses.",url:"https://docs.google.com/document/d/16SvSi0lz-DXJUWytMTI59WJ-RqfCgOunYFQTm7kwyZA/edit"},
+    {id:"fighterTrack",name:"Fighter Course Track",group:"Curriculum",description:"F100 through F500 fighter development series.",url:"https://drive.google.com/drive/folders/1x8_Eca7SITmiRkp1lGcU9DbUjrjmuMHR"},
+    {id:"f100",name:"F100 Recruit Foundations",group:"Curriculum",description:"Eleven recruit-foundation courses.",url:"https://drive.google.com/drive/folders/1lH4BRvPuKzKZR6VzTRh4qAHiOdQVr9LQ"},
+    {id:"f200",name:"F200 Cadet Fundamentals",group:"Curriculum",description:"Fifteen cadet-fundamentals courses, including F201.",url:"https://drive.google.com/drive/folders/1nrMhYEzZjOEvJW6VEzdxbRAFonJ1H-y8"},
+    {id:"f201",name:"F201 · Footwork 101",group:"Curriculum",description:"Source course for the January 6 Phase 1 pilot.",url:"https://drive.google.com/file/d/1G1nnnYGI52_RrJmtDNSTHn6YJ-EJeYJ6/view"},
+    {id:"civicTrack",name:"Dragonspine Civic Arms",group:"Curriculum",description:"DS100 through DS500 civic leadership and operations courses.",url:"https://drive.google.com/drive/folders/1jwQzCyccNzgtK7NHwympeLk0qWEfYB5t"},
+    {id:"classTrack",name:"Class Arts Library",group:"Reference",description:"Working class-track material; verify against the current official Rules of Play.",url:"https://drive.google.com/drive/folders/1dHXezQLGMSfxYqOulcdzK2wfd7G3C4Sg"},
+    {id:"ladderTrack",name:"Ladder Awards Series",group:"Reference",description:"LA101 through LA109 reference courses.",url:"https://drive.google.com/drive/folders/1CN1SxTAIky6kKHjRw-Qwta1hrCIHauru"},
+    {id:"knighthoodTrack",name:"Knighthood Path Series",group:"Reference",description:"KP101 through KP105 path reference courses.",url:"https://drive.google.com/drive/folders/1G7iSBARmB6Ec0J1CnKnxEr-oaJMpWDNi"},
+    {id:"academyResources",name:"Academy Resource Library",group:"Knowledge",description:"Doctrine, manuals, rules sources, teaching aids, and creative resources.",url:"https://drive.google.com/drive/folders/1bw6dw3yUQCiJUqgSV7lUnwkm0rTHIe6o"},
+    {id:"preceptorsManual",name:"Preceptor's Manual",group:"Teaching",description:"Academy teaching doctrine and the Explain–Demonstrate–Practice–Correct loop.",url:"https://docs.google.com/document/d/1sAgI7-p00wGdOURvhpUkq9kvkcrWZuuGFuix3XIrh2c/edit"},
+    {id:"cadetFieldbook",name:"Cadet Fieldbook",group:"Training",description:"Cadet standards, foundational movement, reflection, and field conduct.",url:"https://docs.google.com/document/d/1ivdeQW42NpnnY7T-_cP1Pke4Odm8YbNGuQ5xQB0hWTw/edit"},
+    {id:"academyCorpora",name:"Academy Corpora",group:"Governance",description:"Academy scope, roles, safeguards, and course format.",url:"https://docs.google.com/document/d/1ulSVbHtuWTzcc79tVgcSqkUTfwG5TnRpsrv0YZqz67s/edit"},
+    {id:"rulesSource",name:"Rules of Play 8.7 Source",group:"Authority",description:"Academy Drive reference copy; current official rules always take precedence.",url:"https://docs.google.com/document/d/1yMKmMHu2vU3CKmlQeQyvpwv-ETx5kNNr5sfuxnk3DP0/edit"},
+    {id:"teachingVisuals",name:"Teaching Flowcharts",group:"Teaching",description:"Whole-Fighter Doctrine, session structure, safeguards, and outcomes visuals.",url:"https://drive.google.com/drive/folders/1f1dtzaof2-ULh0zarj_GdTsKSdDDsnyi"},
+    {id:"creativeAssets",name:"Creative Asset Foundry",group:"Publishing",description:"Academy propaganda and creative-expression source assets.",url:"https://drive.google.com/drive/folders/1OKAOEObgNh03jKNBLepytDLeO20oBurs"},
+    {id:"trainingEngine",name:"Tabletop Training Engine",group:"Training",description:"Scenario-based teaching engine, maps, and sanitized player materials.",url:"https://drive.google.com/drive/folders/1zBBTAeKFhb5Y2PMF1IJyh91qOSssYk7u"},
+    {id:"heraldry",name:"Academy Heraldry",group:"Identity",description:"Official Academy coat-of-arms source files.",url:"https://drive.google.com/drive/folders/1yHmetyIyWEirn6dPdzTM0oSkLhBw_Pjo"},
+    {id:"reignOperations",name:"Black Root Reign Operations",group:"Operations",description:"Reign handbooks, agenda, player materials, and operational sheets.",url:"https://drive.google.com/drive/folders/1nQuXShQyDknrgEbDWuuS3sochCKyix8G"},
+    {id:"reignHandbook",name:"Reign Operations Handbook",group:"Operations",description:"Weekly operating plan and published reign schedule.",url:"https://docs.google.com/document/d/1a0bKs7j8OiCUkF-p8w3nHPKVJ3mNA9EC/edit"},
+    {id:"reignAgenda",name:"Black Root Reign Agenda",group:"Operations",description:"Agenda and coordination reference for the reign.",url:"https://docs.google.com/document/d/1QCjx0DLe1HtQBz_f-LGqWxhS8AmHzzCD/edit"},
+    {id:"blackRootBook",name:"Black Root Reign Book",group:"Operations",description:"Black Root Reign v2 campaign and narrative source.",url:"https://docs.google.com/document/d/1NcYgnK_LOC_pzmAqaKfF6HM-LYJODPGOSaRL263JRx8/edit"},
+    {id:"blackRootPublic",name:"Black Root Public Sheets",group:"Operations",description:"Participant-facing reign sheets and public operational materials.",url:"https://drive.google.com/drive/folders/10PcE5AvBzc62Cy5bB6Lptu3g1eocZBVU"},
     {id:"calendar",name:"Academy Calendar",group:"Operations",description:"Schedule practices, events, deadlines, and publishing.",url:"https://calendar.google.com/calendar/u/0/r"},
     {id:"fighterCoach",name:"Academy Fighter Coach",group:"Training",description:"Deliberate-practice sessions, logs, and Warlord Path.",url:"https://blimblam666.github.io/foam-fighting-mobile-coach/"},
     {id:"scorer",name:"Tournament Scorer",group:"Training",description:"Bear Pit, single-elimination, and double-elimination scoring.",url:"https://blimblam666.github.io/Academy_Tournament_Scorer/"},
@@ -22,6 +44,7 @@
     quests: [
       {id:"q-theme",text:"Install and select the Academy Omarchy theme",done:false},
       {id:"q-gates",text:"Verified Academy social gates connected",done:true},
+      {id:"q-library",text:"Four Academy Drive libraries indexed",done:true},
       {id:"q-pilot",text:"Prepare the January 6 F201 pilot",done:false}
     ],
     practiceChecks:{},
@@ -109,7 +132,7 @@
   }
 
   function renderQuickLinks() {
-    var ids = ["drive","f200","calendar","fighterCoach","scorer","ork","youtube","github"];
+    var ids = ["courseLibrary","masterIndex","academyResources","reignHandbook","calendar","fighterCoach","scorer","ork","youtube","github"];
     var holder = document.getElementById("quick-links");
     holder.innerHTML = ids.map(function (id) {
       var item = INTEGRATIONS.find(function (candidate) { return candidate.id === id; });

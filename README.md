@@ -12,12 +12,13 @@ This repository contains the first working Academy OS pilot:
 - **Practice Forge** — the January 6, 2027 Wednesday Fighters Practice pilot using F201: Footwork 101
 - **Content Foundry** — local-first drafting and approval workflow for Academy social content
 - **Integration Registry** — authoritative Academy links, editable without storing passwords or tokens
+- **Drive Catalog** — four mapped libraries exposing 162 confirmed courses, doctrine, operations, heraldry, and creative assets
 - **Academy Omarchy theme** — a dark iron, parchment, thistle, and brass color system
 - **Omarchy bootstrap** — installs the theme and a Command Hall application launcher
 
 ## Live Command Hall
 
-After GitHub Pages is enabled, the application will be available at:
+The live application is available at:
 
 https://blimblam666.github.io/Academy-OS/
 
@@ -31,6 +32,16 @@ bash scripts/install-omarchy.sh
 ```
 
 Then choose **Academy** under `Super + Space → Style → Theme` and open **Academy Command Hall** from the app launcher.
+
+To receive future updates on the Omarchy machine:
+
+```bash
+cd ~/Work/Academy-OS
+git pull --ff-only
+bash scripts/install-omarchy.sh
+```
+
+The hosted Command Hall updates automatically after a successful GitHub Pages deployment.
 
 ## Privacy and authority
 
@@ -50,6 +61,7 @@ The content workflow deliberately stops before publication. A person must review
 - `index.html`, `styles.css`, `app.js` — Command Hall application
 - `PROJECT_CHARTER.md` — product purpose, guardrails, and roadmap
 - `docs/F201_PILOT.md` — explicit Wednesday pilot runbook
+- `docs/DRIVE_INVENTORY.md` — mapped Drive libraries, authority boundaries, and catalog notes
 - `docs/CONTENT_SYSTEM.md` — content-production operating procedure
 - `config/integrations.json` — non-secret integration registry
 - `omarchy-theme/academy/` — installable local Omarchy theme

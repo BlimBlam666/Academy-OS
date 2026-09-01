@@ -10,6 +10,7 @@ const requiredFiles = [
   "assets/crest.svg",
   "PROJECT_CHARTER.md",
   "docs/F201_PILOT.md",
+  "docs/DRIVE_INVENTORY.md",
   "docs/CONTENT_SYSTEM.md",
   "config/integrations.json",
   "omarchy-theme/academy/colors.toml"
@@ -32,6 +33,12 @@ if (!manifest.name || !manifest.start_url) throw new Error("PWA manifest is inco
 
 const integrations = JSON.parse(readFileSync("config/integrations.json", "utf8"));
 if (!Array.isArray(integrations.integrations)) throw new Error("Integration map is invalid");
+for (const id of ["courseLibrary", "masterIndex", "academyResources", "heraldry", "reignHandbook"]) {
+  if (!integrations.integrations.some((item) => item.id === id)) throw new Error(`Missing integration: ${id}`);
+}
+for (const item of integrations.integrations) {
+  if (!item.url.startsWith("https://")) throw new Error(`Integration URL must use HTTPS: ${item.id}`);
+}
 
 const trackedText = requiredFiles
   .filter((file) => !file.endsWith(".svg"))

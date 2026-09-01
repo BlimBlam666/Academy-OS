@@ -117,6 +117,10 @@ Read the F201 closing script.
 - What happens next?
 - What public, consent-safe moment is worth sharing?
 
+## Schedule decision
+
+The Black Root Reign Operations Handbook dated August 18, 2026 lists F101 for January 6 and places F201 later in the reign sequence. On August 31, 2026, the operator explicitly selected January 6 and F201 for this Phase 1 Academy OS pilot. This runbook preserves that newer pilot decision without silently rewriting the published reign calendar. Reconcile the public reign schedule separately before announcing the session.
+
 ## Source fidelity
 
 This runbook wraps the F201 course in the Academy's two-hour Wednesday operating structure. The technical standards, drills, teaching points, scripts, and completion standard come from the Academy Drive version of F201. The muster, warm-up, pressure test, and closeout are operational extensions and must not be represented as additional F201 requirements.

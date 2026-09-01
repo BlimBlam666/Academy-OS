@@ -42,6 +42,7 @@ The Phase 1 operator is the Academy founder and Preceptor. The first operational
 - Academy-themed Omarchy palette
 - Command Hall PWA
 - Non-secret integration registry
+- Mapped Drive catalog covering four shared libraries and 162 confirmed courses
 - F201 Wednesday practice runbook
 - After-action Chronicle
 - Content Foundry with platform drafts and approval queue
@@ -73,10 +74,15 @@ A dependency-free static PWA supplies navigation, local records, runbooks, draft
 
 ### Source layer
 
-- Academy Google Drive: curriculum and Academy records
+- Academy Course Library: 162 confirmed Fighter and Dragonspine Civic courses, plus clearly labeled reference tracks
+- Academy Resource Library: doctrine, fieldbooks, governance, rules sources, teaching visuals, and creative assets
+- Academy Heraldry: official identity source files
+- Black Root Reign Operations: schedule, handbooks, campaign materials, and operational sheets
 - Existing Academy apps: operational tools
 - GitHub: public code, runbooks, and releases
 - Browser local storage: private working state on one device
+
+Current official Amtgard rules, Dragonspine governance, and authorized field officials outrank Academy summaries. Drive permissions govern access; Academy OS links to sources without copying private records.
 
 ### Integration layer
 
