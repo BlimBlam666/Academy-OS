@@ -31,7 +31,7 @@ cd Academy-OS
 bash scripts/install-omarchy.sh
 ```
 
-Then choose **Academy** under `Super + Space → Style → Theme` and open **Academy Command Hall** from the app launcher.
+The installer now verifies and directly applies the theme with `omarchy theme set academy`. Open **Academy Command Hall** from the app launcher.
 
 To receive future updates on the Omarchy machine:
 
@@ -42,6 +42,18 @@ bash scripts/install-omarchy.sh
 ```
 
 The hosted Command Hall updates automatically after a successful GitHub Pages deployment.
+
+### If the Academy theme is missing
+
+Run these commands as your normal user—do not use `sudo`:
+
+```bash
+test -f ~/.config/omarchy/themes/academy/colors.toml && echo "Academy theme files found"
+omarchy theme list | grep -i academy
+omarchy theme set academy
+```
+
+The theme chooser is also available with `Super + Ctrl + Shift + Space`. Directly setting the theme from the terminal bypasses current menu-indexing problems.
 
 ## Privacy and authority
 
