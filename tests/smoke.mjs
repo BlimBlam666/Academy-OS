@@ -28,6 +28,9 @@ for (const marker of ["view-hall", "view-practice", "view-calendar", "view-conte
   if (!html.toLowerCase().includes(marker)) throw new Error(`Missing interface marker: ${marker}`);
 }
 
+const pagesWorkflow = readFileSync(".github/workflows/pages.yml", "utf8");
+if (!pagesWorkflow.includes("cp -R config _site/")) throw new Error("Pages deployment omits calendar configuration");
+
 const calendarSource = readFileSync("config/academy-calendar.js", "utf8");
 const calendarSandbox = { window: {} };
 vm.runInNewContext(calendarSource, calendarSandbox, { filename: "academy-calendar.js" });
