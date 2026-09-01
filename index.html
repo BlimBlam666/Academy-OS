@@ -31,6 +31,7 @@
   <nav class="command-nav" aria-label="Academy OS sections">
     <button class="nav-button active" data-view="hall">Command Hall</button>
     <button class="nav-button" data-view="practice">Practice Forge</button>
+    <button class="nav-button" data-view="calendar">Campaign Calendar</button>
     <button class="nav-button" data-view="content">Content Foundry</button>
     <button class="nav-button" data-view="integrations">Gatehouse</button>
   </nav>
@@ -167,6 +168,44 @@
       </article>
     </section>
 
+    <section class="view" id="view-calendar">
+      <div class="section-intro calendar-intro">
+        <div>
+          <p class="eyebrow">Black Root Reign · January–July 2027</p>
+          <h2>Campaign Calendar</h2>
+          <p>See the confirmed Academy fundamentals rotation beside every Sunday park day, battle game, and story milestone. Select an event for its field brief.</p>
+        </div>
+        <div class="button-row calendar-actions">
+          <a class="primary-button link-button" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noopener">Open Google Calendar ↗</a>
+          <a class="quiet-button link-button" href="https://docs.google.com/document/d/1a0bKs7j8OiCUkF-p8w3nHPKVJ3mNA9EC/edit" target="_blank" rel="noopener">Open Reign Handbook ↗</a>
+        </div>
+      </div>
+
+      <article class="panel campaign-calendar-panel">
+        <div class="calendar-toolbar">
+          <button id="calendar-previous" class="quiet-button" type="button" aria-label="Previous month">← Previous</button>
+          <h3 id="calendar-month">January 2027</h3>
+          <button id="calendar-next" class="quiet-button" type="button" aria-label="Next month">Next →</button>
+        </div>
+        <div class="calendar-legend" aria-label="Calendar legend">
+          <span class="legend-practice">Wednesday practice</span>
+          <span class="legend-park">Sunday park day</span>
+          <span class="legend-story">Story-changing game</span>
+        </div>
+        <div class="calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+        <div id="campaign-calendar-grid" class="campaign-calendar-grid"></div>
+      </article>
+
+      <article class="panel calendar-agenda-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Month Muster</p><h3 id="calendar-agenda-heading">January agenda</h3></div>
+          <span id="calendar-event-count" class="count-badge">0</span>
+        </div>
+        <div id="calendar-agenda" class="calendar-agenda"></div>
+        <p class="safety-note">The Command Hall mirrors the confirmed public operating plan. Google Calendar remains the scheduling authority; the Reign Handbook remains the field-rules authority.</p>
+      </article>
+    </section>
+
     <section class="view" id="view-content">
       <div class="section-intro">
         <div><p class="eyebrow">Content Foundry</p><h2>One moment, four useful drafts.</h2><p>Generate a campaign package locally, review it, then publish by hand.</p></div>
@@ -237,9 +276,17 @@
     </form>
   </dialog>
 
+  <dialog id="calendar-event-dialog" class="calendar-event-dialog">
+    <div class="dialog-heading"><div><p id="calendar-dialog-type" class="eyebrow">Campaign event</p><h2 id="calendar-dialog-title">Event</h2></div><button id="calendar-dialog-close" class="icon-button" type="button" aria-label="Close">×</button></div>
+    <div id="calendar-dialog-meta" class="runbook-meta"></div>
+    <p id="calendar-dialog-purpose" class="calendar-dialog-purpose"></p>
+    <div id="calendar-dialog-actions" class="button-row"></div>
+  </dialog>
+
   <div id="toast" role="status" aria-live="polite"></div>
   <footer><span>Academy OS · Phase I</span><span>Public code. Local records. Human judgment.</span></footer>
   <script src="config/practice-schedule.js"></script>
+  <script src="config/academy-calendar.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

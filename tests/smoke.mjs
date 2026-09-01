@@ -6,6 +6,7 @@ const requiredFiles = [
   "styles.css",
   "app.js",
   "config/practice-schedule.js",
+  "config/academy-calendar.js",
   "manifest.webmanifest",
   "sw.js",
   "assets/crest.svg",
@@ -23,9 +24,17 @@ for (const file of requiredFiles) {
 }
 
 const html = readFileSync("index.html", "utf8");
-for (const marker of ["view-hall", "view-practice", "view-content", "view-integrations", "practice-rotation", "practice-course-link"]) {
+for (const marker of ["view-hall", "view-practice", "view-calendar", "view-content", "view-integrations", "practice-rotation", "practice-course-link", "campaign-calendar-grid"]) {
   if (!html.toLowerCase().includes(marker)) throw new Error(`Missing interface marker: ${marker}`);
 }
+
+const calendarSource = readFileSync("config/academy-calendar.js", "utf8");
+const calendarSandbox = { window: {} };
+vm.runInNewContext(calendarSource, calendarSandbox, { filename: "academy-calendar.js" });
+const campaign = calendarSandbox.window.ACADEMY_CAMPAIGN_CALENDAR;
+if (!campaign || campaign.timezone !== "America/Phoenix") throw new Error("Campaign calendar is invalid");
+if (campaign.sundays.length !== 27) throw new Error("Sunday campaign calendar is incomplete");
+if (!campaign.sundays.some((item) => item.story && item.game === "The Masked Hunter")) throw new Error("Story game schedule is incomplete");
 
 const scheduleSource = readFileSync("config/practice-schedule.js", "utf8");
 const scheduleSandbox = { window: {} };

@@ -4,8 +4,10 @@
   var STORAGE_KEY = "academyOS.phase1.v1";
   var STAGES = ["Captured", "Drafted", "Reviewed", "Scheduled", "Published"];
   var PRACTICE_CONFIG = window.ACADEMY_PRACTICE_SCHEDULE || {courses:[]};
+  var CAMPAIGN_CONFIG = window.ACADEMY_CAMPAIGN_CALENDAR || {sundays:[]};
   var practiceSessions = buildPracticeSessions();
   var activePractice = null;
+  var calendarMonth = campaignMonthDate(CAMPAIGN_CONFIG.firstMonth || "2027-01");
   var INTEGRATIONS = [
     {id:"drive",name:"Academy Drive Gateway",group:"Knowledge",description:"The Academy's shared Drive entry point and source network.",url:"https://drive.google.com/drive/folders/1bw6dw3yUQCiJUqgSV7lUnwkm0rTHIe6o"},
     {id:"courseLibrary",name:"Academy Course Library",group:"Curriculum",description:"Master curriculum library for fighter, civic, class, ladder, and knighthood tracks.",url:"https://drive.google.com/drive/folders/1WztnlzH92ZBptMBQWhPNRANSnYN4EHBG"},
@@ -152,6 +154,127 @@
     var index = practiceSessions.indexOf(session);
     return index >= 0 && index + 1 < practiceSessions.length ? practiceSessions[index + 1] : null;
   }
+
+  function campaignMonthDate(value) {
+    var parts = String(value || "2027-01").split("-").map(Number);
+    return new Date(parts[0], parts[1] - 1, 1, 12, 0, 0);
+  }
+
+  function campaignDate(value) {
+    var parts = String(value || "").split("-").map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
+  }
+
+  function campaignPracticeDetails(index) {
+    var games = [
+      ["Militia Team Elimination", "Shadows Gather"],
+      ["Ring the Bell", "Sound the Ward"],
+      ["Hold the Location", "The Black Root Stirs"],
+      ["Capture the Flag", "The Masked Hunter"],
+      ["Very Heavy Object", "Carry the Mask"],
+      ["Castle Defense", "Ward the Prisoner"],
+      ["Ring the Bell", "Crack the Mask"]
+    ];
+    return games[index] || ["Militia fight game", "Upcoming Sunday objective"];
+  }
+
+  function campaignEvents() {
+    var parkEvents = (CAMPAIGN_CONFIG.sundays || []).map(function (item, index) {
+      return Object.assign({}, item, {
+        id:"park-" + index,
+        type:item.story ? "story" : "park",
+        title:item.game,
+        sourceUrl:CAMPAIGN_CONFIG.handbookUrl,
+        calendarUrl:CAMPAIGN_CONFIG.calendarUrl
+      });
+    });
+    var courseEvents = practiceSessions.map(function (session, index) {
+      var details = campaignPracticeDetails(index);
+      return {
+        id:"practice-" + session.code,
+        type:"practice",
+        date:session.date,
+        time:PRACTICE_CONFIG.timeLabel,
+        focus:"Wednesday Fighters Practice",
+        title:session.code + " · " + session.title,
+        game:details[0] + " · Sunday link: " + details[1],
+        purpose:session.purpose,
+        sourceUrl:session.sourceUrl,
+        calendarUrl:CAMPAIGN_CONFIG.calendarUrl
+      };
+    });
+    return parkEvents.concat(courseEvents).sort(function (a, b) {
+      return a.date.localeCompare(b.date) || (a.type === "practice" ? -1 : 1);
+    });
+  }
+
+  function bindCalendarEventButtons() {
+    document.querySelectorAll("[data-campaign-event]").forEach(function (button) {
+      button.addEventListener("click", function () { openCampaignEvent(button.dataset.campaignEvent); });
+    });
+  }
+
+  function renderCampaignCalendar() {
+    var grid = document.getElementById("campaign-calendar-grid");
+    if (!grid) return;
+    var year = calendarMonth.getFullYear();
+    var month = calendarMonth.getMonth();
+    var monthKey = year + "-" + String(month + 1).padStart(2, "0");
+    var allEvents = campaignEvents();
+    var monthEvents = allEvents.filter(function (item) { return item.date.slice(0, 7) === monthKey; });
+    var firstWeekday = new Date(year, month, 1, 12).getDay();
+    var dayCount = new Date(year, month + 1, 0, 12).getDate();
+    var cells = [];
+
+    document.getElementById("calendar-month").textContent = calendarMonth.toLocaleDateString([], {month:"long",year:"numeric"});
+    document.getElementById("calendar-agenda-heading").textContent = calendarMonth.toLocaleDateString([], {month:"long"}) + " agenda";
+    document.getElementById("calendar-event-count").textContent = monthEvents.length;
+
+    for (var blank = 0; blank < firstWeekday; blank += 1) cells.push('<div class="calendar-day outside" aria-hidden="true"></div>');
+    for (var day = 1; day <= dayCount; day += 1) {
+      var iso = year + "-" + String(month + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+      var dayEvents = monthEvents.filter(function (item) { return item.date === iso; });
+      cells.push('<div class="calendar-day' + (dayEvents.length ? " has-event" : "") + '"><span class="calendar-date">' + day + '</span>' + dayEvents.map(function (item) {
+        return '<button class="calendar-chip ' + escapeHtml(item.type) + '" type="button" data-campaign-event="' + escapeHtml(item.id) + '"><b>' + escapeHtml(item.type === "practice" ? item.title : item.game) + '</b><small>' + escapeHtml(item.time) + '</small></button>';
+      }).join("") + '</div>');
+    }
+    grid.innerHTML = cells.join("");
+
+    var agenda = document.getElementById("calendar-agenda");
+    agenda.innerHTML = monthEvents.length ? monthEvents.map(function (item) {
+      return '<button class="agenda-event ' + escapeHtml(item.type) + '" type="button" data-campaign-event="' + escapeHtml(item.id) + '"><time datetime="' + escapeHtml(item.date) + '">' + escapeHtml(campaignDate(item.date).toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"})) + '</time><span><b>' + escapeHtml(item.type === "practice" ? item.title : item.game) + '</b><small>' + escapeHtml(item.focus) + ' · ' + escapeHtml(item.time) + '</small></span><span aria-hidden="true">›</span></button>';
+    }).join("") : '<p class="empty-state">No confirmed campaign events are loaded for this month.</p>';
+
+    var first = CAMPAIGN_CONFIG.firstMonth || "2027-01";
+    var last = CAMPAIGN_CONFIG.lastMonth || "2027-07";
+    document.getElementById("calendar-previous").disabled = monthKey <= first;
+    document.getElementById("calendar-next").disabled = monthKey >= last;
+    bindCalendarEventButtons();
+  }
+
+  function openCampaignEvent(id) {
+    var item = campaignEvents().find(function (candidate) { return candidate.id === id; });
+    if (!item) return;
+    var dialog = document.getElementById("calendar-event-dialog");
+    document.getElementById("calendar-dialog-type").textContent = item.type === "practice" ? "Wednesday Fighters Practice" : (item.story ? "Story-changing Sunday game" : "Sunday Park Day");
+    document.getElementById("calendar-dialog-title").textContent = item.type === "practice" ? item.title : item.game;
+    document.getElementById("calendar-dialog-meta").innerHTML = '<span>' + escapeHtml(campaignDate(item.date).toLocaleDateString([], {weekday:"long",month:"long",day:"numeric",year:"numeric"})) + '</span><span>' + escapeHtml(item.time) + '</span><span>' + escapeHtml(item.focus) + '</span>';
+    document.getElementById("calendar-dialog-purpose").textContent = item.purpose;
+    document.getElementById("calendar-dialog-actions").innerHTML = '<a class="primary-button link-button" href="' + escapeHtml(item.sourceUrl) + '" target="_blank" rel="noopener">' + (item.type === "practice" ? "Open Course" : "Open Field Handbook") + ' ↗</a><a class="quiet-button link-button" href="' + escapeHtml(item.calendarUrl) + '" target="_blank" rel="noopener">Open Google Calendar ↗</a>';
+    dialog.showModal();
+  }
+
+  document.getElementById("calendar-previous").addEventListener("click", function () {
+    calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1, 12);
+    renderCampaignCalendar();
+  });
+  document.getElementById("calendar-next").addEventListener("click", function () {
+    calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1, 12);
+    renderCampaignCalendar();
+  });
+  document.getElementById("calendar-dialog-close").addEventListener("click", function () {
+    document.getElementById("calendar-event-dialog").close();
+  });
 
   function renderPractice() {
     activePractice = scheduledPractice();
@@ -552,6 +675,7 @@
 
   function initializeRenders() {
     renderPractice();
+    renderCampaignCalendar();
     bindPracticeChecks();
     renderQuickLinks();
     renderQuests();
