@@ -1,5 +1,7 @@
 # Wednesday Fighters Practice Pilot
 
+> **Superseded plan:** On September 1, 2026, the operator replaced this F201-first pilot with the F104–F108 and F110–F111 fundamentals rotation documented in `FUNDAMENTALS_ROTATION.md`. This file is retained as historical planning material.
+
 ## Mission
 
 Deliver F201: Footwork 101 as a complete Academy session, pressure-test the workflow, finish the operational closeout within 20 minutes, and produce one truthful AAR.

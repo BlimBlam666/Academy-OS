@@ -5,11 +5,13 @@ const requiredFiles = [
   "index.html",
   "styles.css",
   "app.js",
+  "config/practice-schedule.js",
   "manifest.webmanifest",
   "sw.js",
   "assets/crest.svg",
   "PROJECT_CHARTER.md",
   "docs/F201_PILOT.md",
+  "docs/FUNDAMENTALS_ROTATION.md",
   "docs/DRIVE_INVENTORY.md",
   "docs/CONTENT_SYSTEM.md",
   "config/integrations.json",
@@ -21,8 +23,20 @@ for (const file of requiredFiles) {
 }
 
 const html = readFileSync("index.html", "utf8");
-for (const marker of ["view-hall", "view-practice", "view-content", "view-integrations", "f201"]) {
+for (const marker of ["view-hall", "view-practice", "view-content", "view-integrations", "practice-rotation", "practice-course-link"]) {
   if (!html.toLowerCase().includes(marker)) throw new Error(`Missing interface marker: ${marker}`);
+}
+
+const scheduleSource = readFileSync("config/practice-schedule.js", "utf8");
+const scheduleSandbox = { window: {} };
+vm.runInNewContext(scheduleSource, scheduleSandbox, { filename: "practice-schedule.js" });
+const schedule = scheduleSandbox.window.ACADEMY_PRACTICE_SCHEDULE;
+if (!schedule || schedule.startDate !== "2027-01-06") throw new Error("Practice schedule start date is invalid");
+if (schedule.cadenceDays !== 7 || schedule.courses.length !== 7) throw new Error("Practice rotation is incomplete");
+if (schedule.courses[0].code !== "F104" || schedule.courses[6].code !== "F111") throw new Error("Practice rotation sequence is invalid");
+for (const course of schedule.courses) {
+  if (!course.sourceUrl.startsWith("https://docs.google.com/")) throw new Error(`Invalid course source: ${course.code}`);
+  if (!course.drills.length || !course.standards.length) throw new Error(`Incomplete course data: ${course.code}`);
 }
 
 const app = readFileSync("app.js", "utf8");

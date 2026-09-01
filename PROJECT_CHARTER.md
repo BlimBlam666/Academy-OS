@@ -8,7 +8,7 @@ It is not a new Linux kernel or a closed operating system. It is a portable oper
 
 ## First operator
 
-The Phase 1 operator is the Academy founder and Preceptor. The first operational workflow is Wednesday Fighters Practice. The first course is F201: Footwork 101 on January 6, 2027.
+The Phase 1 operator is the Academy founder and Preceptor. The first operational workflow is Wednesday Fighters Practice. The first rotation begins with F104: The Ready Stance on January 6, 2027, then advances weekly through F105–F108 and F110–F111.
 
 ## People served
 
@@ -43,7 +43,7 @@ The Phase 1 operator is the Academy founder and Preceptor. The first operational
 - Command Hall PWA
 - Non-secret integration registry
 - Mapped Drive catalog covering four shared libraries and 162 confirmed courses
-- F201 Wednesday practice runbook
+- Automated Wednesday fundamentals rotation and course-aware Practice Forge
 - After-action Chronicle
 - Content Foundry with platform drafts and approval queue
 - Omarchy installation helper

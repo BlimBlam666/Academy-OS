@@ -9,7 +9,7 @@ A portable command layer for running the Academy of Mercenary Arts: operations, 
 This repository contains the first working Academy OS pilot:
 
 - **Command Hall** — a medieval-fantasy operations dashboard
-- **Practice Forge** — the January 6, 2027 Wednesday Fighters Practice pilot using F201: Footwork 101
+- **Practice Forge** — an automatically advancing Wednesday fundamentals rotation beginning with F104: The Ready Stance on January 6, 2027
 - **Content Foundry** — local-first drafting and approval workflow for Academy social content
 - **Integration Registry** — authoritative Academy links, editable without storing passwords or tokens
 - **Drive Catalog** — four mapped libraries exposing 162 confirmed courses, doctrine, operations, heraldry, and creative assets
@@ -72,10 +72,12 @@ The content workflow deliberately stops before publication. A person must review
 
 - `index.html`, `styles.css`, `app.js` — Command Hall application
 - `PROJECT_CHARTER.md` — product purpose, guardrails, and roadmap
-- `docs/F201_PILOT.md` — explicit Wednesday pilot runbook
+- `docs/FUNDAMENTALS_ROTATION.md` — automated Wednesday course rotation and operating rules
+- `docs/F201_PILOT.md` — archived superseded F201 pilot plan
 - `docs/DRIVE_INVENTORY.md` — mapped Drive libraries, authority boundaries, and catalog notes
 - `docs/CONTENT_SYSTEM.md` — content-production operating procedure
 - `config/integrations.json` — non-secret integration registry
+- `config/practice-schedule.js` — dated course rotation and course-specific Practice Forge data
 - `omarchy-theme/academy/` — installable local Omarchy theme
 - `scripts/install-omarchy.sh` — reversible local installer
 - `.github/workflows/` — verification and GitHub Pages deployment

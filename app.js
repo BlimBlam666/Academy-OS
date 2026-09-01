@@ -3,6 +3,9 @@
 
   var STORAGE_KEY = "academyOS.phase1.v1";
   var STAGES = ["Captured", "Drafted", "Reviewed", "Scheduled", "Published"];
+  var PRACTICE_CONFIG = window.ACADEMY_PRACTICE_SCHEDULE || {courses:[]};
+  var practiceSessions = buildPracticeSessions();
+  var activePractice = null;
   var INTEGRATIONS = [
     {id:"drive",name:"Academy Drive Gateway",group:"Knowledge",description:"The Academy's shared Drive entry point and source network.",url:"https://drive.google.com/drive/folders/1bw6dw3yUQCiJUqgSV7lUnwkm0rTHIe6o"},
     {id:"courseLibrary",name:"Academy Course Library",group:"Curriculum",description:"Master curriculum library for fighter, civic, class, ladder, and knighthood tracks.",url:"https://drive.google.com/drive/folders/1WztnlzH92ZBptMBQWhPNRANSnYN4EHBG"},
@@ -10,7 +13,7 @@
     {id:"fighterTrack",name:"Fighter Course Track",group:"Curriculum",description:"F100 through F500 fighter development series.",url:"https://drive.google.com/drive/folders/1x8_Eca7SITmiRkp1lGcU9DbUjrjmuMHR"},
     {id:"f100",name:"F100 Recruit Foundations",group:"Curriculum",description:"Eleven recruit-foundation courses.",url:"https://drive.google.com/drive/folders/1lH4BRvPuKzKZR6VzTRh4qAHiOdQVr9LQ"},
     {id:"f200",name:"F200 Cadet Fundamentals",group:"Curriculum",description:"Fifteen cadet-fundamentals courses, including F201.",url:"https://drive.google.com/drive/folders/1nrMhYEzZjOEvJW6VEzdxbRAFonJ1H-y8"},
-    {id:"f201",name:"F201 · Footwork 101",group:"Curriculum",description:"Source course for the January 6 Phase 1 pilot.",url:"https://drive.google.com/file/d/1G1nnnYGI52_RrJmtDNSTHn6YJ-EJeYJ6/view"},
+    {id:"f201",name:"F201 · Footwork 101",group:"Curriculum",description:"F200 footwork source retained for a later practice.",url:"https://drive.google.com/file/d/1G1nnnYGI52_RrJmtDNSTHn6YJ-EJeYJ6/view"},
     {id:"civicTrack",name:"Dragonspine Civic Arms",group:"Curriculum",description:"DS100 through DS500 civic leadership and operations courses.",url:"https://drive.google.com/drive/folders/1jwQzCyccNzgtK7NHwympeLk0qWEfYB5t"},
     {id:"classTrack",name:"Class Arts Library",group:"Reference",description:"Working class-track material; verify against the current official Rules of Play.",url:"https://drive.google.com/drive/folders/1dHXezQLGMSfxYqOulcdzK2wfd7G3C4Sg"},
     {id:"ladderTrack",name:"Ladder Awards Series",group:"Reference",description:"LA101 through LA109 reference courses.",url:"https://drive.google.com/drive/folders/1CN1SxTAIky6kKHjRw-Qwta1hrCIHauru"},
@@ -45,7 +48,7 @@
       {id:"q-theme",text:"Install and select the Academy Omarchy theme",done:false},
       {id:"q-gates",text:"Verified Academy social gates connected",done:true},
       {id:"q-library",text:"Four Academy Drive libraries indexed",done:true},
-      {id:"q-pilot",text:"Prepare the January 6 F201 pilot",done:false}
+      {id:"q-pilot",text:"Prepare the January 6 F104 fundamentals practice",done:false}
     ],
     practiceChecks:{},
     aars:[],
@@ -71,6 +74,10 @@
     } catch (error) {
       console.warn("Academy OS could not read saved state.", error);
     }
+    base.quests = (base.quests || []).map(function (quest) {
+      if (quest.id === "q-pilot") quest.text = "Prepare the January 6 F104 fundamentals practice";
+      return quest;
+    });
     return base;
   }
 
@@ -109,15 +116,125 @@
     button.addEventListener("click", function () { showView(button.dataset.go); });
   });
 
+
+  function parsePracticeDate(value) {
+    var parts = String(value || "").split("-").map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2], 19, 0, 0);
+  }
+
+  function practiceDateISO(date) {
+    return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+  }
+
+  function buildPracticeSessions() {
+    if (!PRACTICE_CONFIG.courses || !PRACTICE_CONFIG.courses.length) return [];
+    var start = parsePracticeDate(PRACTICE_CONFIG.startDate);
+    return PRACTICE_CONFIG.courses.map(function (course, index) {
+      var date = new Date(start.getTime());
+      date.setDate(start.getDate() + index * (PRACTICE_CONFIG.cadenceDays || 7));
+      return Object.assign({}, course, {date:practiceDateISO(date)});
+    });
+  }
+
+  function scheduledPractice() {
+    if (!practiceSessions.length) return null;
+    var today = practiceDateISO(new Date());
+    return practiceSessions.find(function (session) { return session.date >= today; }) || practiceSessions[practiceSessions.length - 1];
+  }
+
+  function formatPracticeDate(value, includeYear) {
+    return parsePracticeDate(value).toLocaleDateString([], {
+      weekday:"long", month:"long", day:"numeric", year:includeYear ? "numeric" : undefined
+    });
+  }
+
+  function nextPracticeAfter(session) {
+    var index = practiceSessions.indexOf(session);
+    return index >= 0 && index + 1 < practiceSessions.length ? practiceSessions[index + 1] : null;
+  }
+
+  function renderPractice() {
+    activePractice = scheduledPractice();
+    if (!activePractice) return;
+
+    var courseIndex = practiceSessions.indexOf(activePractice);
+    var next = nextPracticeAfter(activePractice);
+    document.getElementById("practice-label").textContent = "Practice Forge · Course " + (courseIndex + 1) + " of " + practiceSessions.length;
+    document.getElementById("practice-title").textContent = activePractice.code + " · " + activePractice.title;
+    document.getElementById("practice-motto").textContent = activePractice.motto;
+    document.getElementById("practice-purpose").textContent = activePractice.purpose;
+    document.getElementById("practice-course-link").href = activePractice.sourceUrl;
+    document.getElementById("practice-course-link").textContent = "Open Current Course · " + activePractice.code + " ↗";
+    document.getElementById("practice-meta").innerHTML =
+      "<span>" + escapeHtml(formatPracticeDate(activePractice.date, true)) + "</span>" +
+      "<span>" + escapeHtml(PRACTICE_CONFIG.timeLabel) + "</span>" +
+      "<span>" + escapeHtml(activePractice.code) + "</span>";
+
+    var firstDrills = activePractice.drills.slice(0, 2).join(" and ");
+    var laterDrills = activePractice.drills.slice(2).join(", ") || "repeat the primary drill with one correction";
+    var phases = [
+      {id:"prep", title:"6:45 · Preparation — " + PRACTICE_CONFIG.prepMinutes + " minutes", description:"Inspect the field, stage equipment, open the source course, and confirm consent and safety needs."},
+      {id:"muster", title:"7:00 · Muster and warm-up — 20 minutes", description:"Welcome fighters, check readiness, review prior fundamentals, and state today's purpose: " + activePractice.purpose},
+      {id:"lesson", title:"7:20 · Source lesson — 30 minutes", description:"Teach directly from " + activePractice.code + ". Establish the core concept, then run " + firstDrills + "."},
+      {id:"drill", title:"7:50 · Guided drilling — 30 minutes", description:"Continue with " + laterDrills + ". Give one correction at a time and repeat until the behavior becomes clearer."},
+      {id:"pressure", title:"8:20 · Field application — 30 minutes", description:activePractice.application},
+      {id:"close", title:"8:50 · Passing standard and close — 10 minutes", description:"Observe the listed completion standards, name one success and one next improvement, then read the closing script."},
+      {id:"aar", title:"9:00 · Post-practice closeout — " + PRACTICE_CONFIG.closeoutMinutes + " minutes", description:"Account for equipment, record attendance privately, complete the AAR, preserve approved media, and prepare the next course."}
+    ];
+
+    document.getElementById("practice-timeline").innerHTML = phases.map(function (phase) {
+      var key = activePractice.code.toLowerCase() + "-" + phase.id;
+      return '<li><label><input type="checkbox" data-practice-check="' + key + '"> <span><b>' +
+        escapeHtml(phase.title) + "</b>" + escapeHtml(phase.description) + "</span></label></li>";
+    }).join("");
+
+    document.getElementById("practice-standards").innerHTML = activePractice.standards.map(function (standard) {
+      return "<li>" + escapeHtml(standard) + "</li>";
+    }).join("");
+    document.getElementById("practice-cues").innerHTML = activePractice.cues.map(function (cue) {
+      return "<span>" + escapeHtml(cue) + "</span>";
+    }).join("");
+    document.getElementById("practice-opening").textContent = "“" + activePractice.opening + "”";
+    document.getElementById("practice-closing").textContent = "“" + activePractice.closing + "”";
+    document.getElementById("practice-rotation").innerHTML = practiceSessions.map(function (session) {
+      var current = session.code === activePractice.code ? " active" : "";
+      return '<a class="rotation-item' + current + '" href="' + escapeHtml(session.sourceUrl) +
+        '" target="_blank" rel="noopener"><b>' + escapeHtml(session.code) + "</b><span>" +
+        escapeHtml(formatPracticeDate(session.date, false)) + "</span><small>" +
+        escapeHtml(session.title) + "</small></a>";
+    }).join("");
+    document.getElementById("next-practice").textContent = next
+      ? "Following course: " + next.code + " · " + next.title + " on " + formatPracticeDate(next.date, false) + "."
+      : "This is the final course currently loaded. Add the next course to the schedule file to continue the rotation.";
+
+    var contentEvent = document.getElementById("content-event");
+    if (contentEvent && (!contentEvent.value || contentEvent.value === "Academy Fighters Practice" || contentEvent.value.indexOf("F201") === 0)) {
+      contentEvent.value = activePractice.code + " · " + activePractice.title;
+    }
+  }
+
   function updateClock() {
     var now = new Date();
     document.getElementById("clock").textContent = now.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
     document.getElementById("today").textContent = now.toLocaleDateString([], {weekday:"long",month:"long",day:"numeric",year:"numeric"});
-    var pilot = new Date(2027, 0, 6, 19, 0, 0);
-    var distance = pilot.getTime() - now.getTime();
+    var session = scheduledPractice();
     var countdown = document.getElementById("countdown");
-    if (distance <= 0) {
-      countdown.textContent = "Pilot date reached";
+    if (!session) {
+      countdown.textContent = "No practice course is scheduled";
+      return;
+    }
+
+    var practiceDate = parsePracticeDate(session.date);
+    var distance = practiceDate.getTime() - now.getTime();
+    var today = practiceDateISO(now);
+    document.getElementById("next-event-label").textContent = session.date === today ? "Today's practice" : "Next practice";
+    document.getElementById("next-event-course").textContent = session.code + " · " + session.title;
+    document.getElementById("next-event-date").textContent = formatPracticeDate(session.date, true) + " · " + PRACTICE_CONFIG.timeLabel;
+
+    if (distance <= 0 && session.date === today) {
+      countdown.textContent = "Practice is underway or complete";
+    } else if (distance <= 0) {
+      countdown.textContent = "Current rotation complete";
     } else {
       var days = Math.floor(distance / 86400000);
       var hours = Math.floor((distance % 86400000) / 3600000);
@@ -196,13 +313,16 @@
     }).join("");
   }
 
-  document.querySelectorAll("[data-practice-check]").forEach(function (checkbox) {
-    checkbox.checked = Boolean(state.practiceChecks[checkbox.dataset.practiceCheck]);
-    checkbox.addEventListener("change", function () {
-      state.practiceChecks[checkbox.dataset.practiceCheck] = checkbox.checked;
-      saveState(); updatePracticeProgress();
+  function bindPracticeChecks() {
+    document.querySelectorAll("[data-practice-check]").forEach(function (checkbox) {
+      checkbox.checked = Boolean(state.practiceChecks[checkbox.dataset.practiceCheck]);
+      checkbox.addEventListener("change", function () {
+        state.practiceChecks[checkbox.dataset.practiceCheck] = checkbox.checked;
+        saveState(); updatePracticeProgress();
+      });
     });
-  });
+    updatePracticeProgress();
+  }
 
   function updatePracticeProgress() {
     var boxes = Array.from(document.querySelectorAll("[data-practice-check]"));
@@ -215,7 +335,7 @@
 
   function aarValues() {
     return {
-      event:"F201 · Footwork 101",
+      event:activePractice ? activePractice.code + " · " + activePractice.title : "Academy Fighters Practice",
       date:new Date().toLocaleString(),
       happened:document.getElementById("aar-happened").value.trim(),
       worked:document.getElementById("aar-worked").value.trim(),
@@ -431,16 +551,15 @@
   });
 
   function initializeRenders() {
+    renderPractice();
+    bindPracticeChecks();
     renderQuickLinks();
     renderQuests();
     renderChronicle();
     renderDraft();
     renderQueue();
     renderIntegrations();
-    document.querySelectorAll("[data-practice-check]").forEach(function (checkbox) {
-      checkbox.checked = Boolean(state.practiceChecks[checkbox.dataset.practiceCheck]);
-    });
-    updatePracticeProgress();
+    bindPracticeChecks();
   }
 
   initializeRenders();

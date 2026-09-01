@@ -46,9 +46,9 @@
         <div class="next-event">
           <span class="sigil">I</span>
           <div>
-            <small>First pilot</small>
-            <strong>F201 · Footwork 101</strong>
-            <span>Wednesday, January 6, 2027 · 7–9 PM</span>
+            <small id="next-event-label">Next practice</small>
+            <strong id="next-event-course">Loading course rotation…</strong>
+            <span id="next-event-date">Calculating the next Wednesday…</span>
             <span id="countdown">Calculating the march…</span>
           </div>
         </div>
@@ -110,52 +110,25 @@
     <section class="view" id="view-practice">
       <div class="section-intro">
         <div>
-          <p class="eyebrow">Practice Forge · Pilot 01</p>
-          <h2>F201 · Footwork 101</h2>
-          <p>Move with purpose. Recover with discipline.</p>
+          <p class="eyebrow" id="practice-label">Practice Forge · Loading rotation</p>
+          <h2 id="practice-title">Preparing the next Academy course…</h2>
+          <p id="practice-motto"></p>
         </div>
-        <a class="primary-button link-button" href="https://drive.google.com/file/d/1G1nnnYGI52_RrJmtDNSTHn6YJ-EJeYJ6/view" target="_blank" rel="noopener" aria-label="Open the current course, F201 Footwork 101, in Google Drive">Open Current Course · F201 ↗</a>
+        <a id="practice-course-link" class="primary-button link-button" href="#" target="_blank" rel="noopener">Open Current Course ↗</a>
       </div>
 
       <div class="practice-layout">
         <article class="panel runbook">
-          <div class="runbook-meta">
-            <span>January 6, 2027</span><span>7:00–9:00 PM</span><span>F201</span>
-          </div>
-          <p class="subtle"><b>Current course:</b> <a href="https://drive.google.com/file/d/1G1nnnYGI52_RrJmtDNSTHn6YJ-EJeYJ6/view" target="_blank" rel="noopener">F201 · Footwork 101 — view in Google Drive ↗</a></p>
+          <div id="practice-meta" class="runbook-meta"></div>
+          <p id="practice-purpose" class="subtle"></p>
           <h3>Field Runbook</h3>
-          <p class="subtle">Check each stage as it is completed. Progress remains on this device.</p>
+          <p class="subtle">The dated rotation selects this course automatically. Check each stage as it is completed; progress is stored separately for every course.</p>
           <div id="practice-progress" class="progress-track"><span></span></div>
-          <ol class="timeline">
-            <li>
-              <label><input type="checkbox" data-practice-check="prep"> <span><b>6:45 · Preparation — 15 minutes</b>Inspect surface and hazards; set cone lane; stage foam weapons and shields; establish safe spacing.</span></label>
-            </li>
-            <li>
-              <label><input type="checkbox" data-practice-check="opening"> <span><b>7:00 · Muster, safety, and purpose — 10 minutes</b>Welcome cadets, check readiness, state the Whole-Fighter goal, and read the opening script.</span></label>
-            </li>
-            <li>
-              <label><input type="checkbox" data-practice-check="warmup"> <span><b>7:10 · Warm-up and ready stance — 15 minutes</b>Raise temperature, mobilize ankles and hips, then review F104 stance and F110 basic movement.</span></label>
-            </li>
-            <li>
-              <label><input type="checkbox" data-practice-check="lesson"> <span><b>7:25 · F201 instruction — 30 minutes</b>Teach movement purpose, low feet, separate tracks, small steps, live guard, and recovery. Run Four-Direction Forge and Moving Guard Lane.</span></label>
-            </li>
-            <li>
-              <label><input type="checkbox" data-practice-check="drill"> <span><b>7:55 · Partner practice — 25 minutes</b>Run Mirror Step and One Step, One Purpose. Partners identify close, exit, angle, or reset before moving.</span></label>
-            </li>
-            <li>
-              <label><input type="checkbox" data-practice-check="pressure"> <span><b>8:20 · Pressure test — 30 minutes</b>Use controlled sparring or a simple militia game. Reward purposeful movement and immediate stance recovery, not raw wins.</span></label>
-            </li>
-            <li>
-              <label><input type="checkbox" data-practice-check="close"> <span><b>8:50 · Passing standard and close — 10 minutes</b>Cadets demonstrate four directions, pivot, live guard, recovery, and the purpose of a chosen movement.</span></label>
-            </li>
-            <li>
-              <label><input type="checkbox" data-practice-check="aar"> <span><b>9:00 · Post-practice closeout — 20 minutes</b>Account for equipment, record attendance privately, complete the AAR, preserve approved media, and name the next improvement.</span></label>
-            </li>
-          </ol>
+          <ol id="practice-timeline" class="timeline"></ol>
           <details class="scripture">
             <summary>Opening and closing scripts</summary>
-            <blockquote>“The feet begin the fight before the sword moves. Footwork is not speed for its own sake. It is how we place the body where it can defend, attack, and survive. A small step taken with purpose is better than a brave leap into ruin.”</blockquote>
-            <blockquote>“A fighter who moves without purpose is carried by habit. A fighter who moves with purpose becomes hard to find and harder to fool. Step well. Recover well. Continue.”</blockquote>
+            <blockquote id="practice-opening"></blockquote>
+            <blockquote id="practice-closing"></blockquote>
           </details>
         </article>
 
@@ -163,19 +136,17 @@
           <article class="panel">
             <p class="eyebrow">Passing Standard</p>
             <h3>Cadet can…</h3>
-            <ul class="standard-list">
-              <li>Move safely in four directions</li>
-              <li>Pivot to face an opponent</li>
-              <li>Keep guard alive while moving</li>
-              <li>Recover stance after every step</li>
-              <li>Name the purpose of movement</li>
-            </ul>
+            <ul id="practice-standards" class="standard-list"></ul>
           </article>
           <article class="panel">
             <p class="eyebrow">Coaching Cues</p>
-            <div class="cue-cloud">
-              <span>Separate tracks</span><span>Feet low</span><span>Guard alive</span><span>Ready again</span>
-            </div>
+            <div id="practice-cues" class="cue-cloud"></div>
+          </article>
+          <article class="panel">
+            <p class="eyebrow">Course Rotation</p>
+            <h3>Upcoming Wednesdays</h3>
+            <div id="practice-rotation" class="rotation-list"></div>
+            <p id="next-practice" class="subtle"></p>
           </article>
         </aside>
       </div>
@@ -206,7 +177,7 @@
         <article class="panel">
           <h3>Campaign source</h3>
           <form id="content-form" class="stack-form">
-            <label>Event or lesson<input id="content-event" required value="F201 · Footwork 101"></label>
+            <label>Event or lesson<input id="content-event" required value="Academy Fighters Practice"></label>
             <label>Audience<input id="content-audience" value="new and developing foam fighters"></label>
             <label>The moment<textarea id="content-moment" rows="3" required placeholder="What actually happened?"></textarea></label>
             <label>The lesson<textarea id="content-lesson" rows="3" required placeholder="What can someone learn or try?"></textarea></label>
@@ -268,6 +239,7 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
   <footer><span>Academy OS · Phase I</span><span>Public code. Local records. Human judgment.</span></footer>
+  <script src="config/practice-schedule.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
