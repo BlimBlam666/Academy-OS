@@ -13,7 +13,7 @@ This repository contains the first working Academy OS pilot:
 - **Content Foundry** — local-first drafting and approval workflow for Academy social content
 - **Integration Registry** — authoritative Academy links, editable without storing passwords or tokens
 - **Drive Catalog** — four mapped libraries exposing 162 confirmed courses, doctrine, operations, heraldry, and creative assets
-- **Academy Omarchy theme** — a dark iron, parchment, thistle, and brass color system
+- **Academy Omarchy theme** — a dark iron, parchment, thistle, and brass color system with an original Command Hall wallpaper
 - **Omarchy bootstrap** — installs the theme and a Command Hall application launcher
 
 ## Live Command Hall
@@ -31,7 +31,7 @@ cd Academy-OS
 bash scripts/install-omarchy.sh
 ```
 
-The installer now verifies and directly applies the theme with `omarchy theme set academy`. Open **Academy Command Hall** from the app launcher.
+The installer verifies and directly applies the theme with `omarchy theme set academy`, installs the original Academy Command Hall wallpaper, and attempts to select it automatically. Open **Academy Command Hall** from the app launcher.
 
 To receive future updates on the Omarchy machine:
 
@@ -53,7 +53,7 @@ omarchy theme list | grep -i academy
 omarchy theme set academy
 ```
 
-The theme chooser is also available with `Super + Ctrl + Shift + Space`. Directly setting the theme from the terminal bypasses current menu-indexing problems.
+The theme chooser is also available with `Super + Ctrl + Shift + Space`. Directly setting the theme from the terminal bypasses current menu-indexing problems. Use `Super + Ctrl + Space` to choose among the Academy theme's backgrounds.
 
 ## Privacy and authority
 
