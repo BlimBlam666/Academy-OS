@@ -559,7 +559,6 @@
     renderDraft();
     renderQueue();
     renderIntegrations();
-    bindPracticeChecks();
   }
 
   initializeRenders();
