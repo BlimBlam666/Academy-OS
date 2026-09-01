@@ -2,13 +2,32 @@
   "use strict";
 
   window.ACADEMY_CAMPAIGN_CALENDAR = {
-    version: 1,
+    version: 2,
     timezone: "America/Phoenix",
-    firstMonth: "2027-01",
+    firstMonth: "2026-09",
     lastMonth: "2027-07",
     calendarUrl: "https://calendar.google.com/calendar/u/0/r",
     handbookUrl: "https://docs.google.com/document/d/1a0bKs7j8OiCUkF-p8w3nHPKVJ3mNA9EC/edit",
     agendaUrl: "https://docs.google.com/document/d/1QCjx0DLe1HtQBz_f-LGqWxhS8AmHzzCD/edit",
+    launchPlanUrl: "https://github.com/BlimBlam666/Academy-OS/blob/main/docs/ACADEMY_LAUNCH_CAMPAIGN.md",
+    milestones: [
+      {date:"2026-09-06", time:"Campaign checkpoint", type:"launch", focus:"Academy launch campaign", title:"Four-Month Campaign Kickoff", purpose:"Assign operations, instruction, safety, materials, media, and follow-up owners; establish one Academy signup destination.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/ACADEMY_LAUNCH_CAMPAIGN.md"},
+      {date:"2026-09-13", time:"Deadline checkpoint", type:"craft", focus:"Crown Qualifications", title:"Confirm Crown Quals Requirements", purpose:"Obtain the official date, declaration deadline, entry count, categories, rubric, and documentation rules before the build scope hardens.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/CROWN_QUALS_BUILD_PLAN.md"},
+      {date:"2026-09-20", time:"Build night", type:"outreach", focus:"RinCon preparation", title:"RinCon Teaching Masters", purpose:"Complete and inspect one sword and one throwie teaching master; test the welcome script and QR destination.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/RINCON_AMTGARD_INTRO_PACKAGE.md"},
+      {date:"2026-09-27", time:"Full rehearsal", type:"outreach", focus:"RinCon preparation", title:"RinCon Class Dry Run", purpose:"Run both workshops against a timer, rehearse safety and consent language, and pack every station.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/RINCON_AMTGARD_INTRO_PACKAGE.md"},
+      {date:"2026-10-02", time:"October 2–4", type:"outreach", focus:"Public outreach · Casino Del Sol", title:"RinCon 2026 · Amtgard Introduction", purpose:"Teach sword and throwie construction, run inspected micro-play, introduce Amtgard, and invite interested visitors to the January 6 Academy launch.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/RINCON_AMTGARD_INTRO_PACKAGE.md"},
+      {date:"2026-10-11", time:"72-hour follow-up complete", type:"launch", focus:"RinCon closeout", title:"RinCon AAR and Recruit Follow-Up", purpose:"Thank volunteers, publish approved media, contact opted-in recruits, reconcile materials, and record one improvement.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/ACADEMY_LAUNCH_CAMPAIGN.md"},
+      {date:"2026-10-18", time:"Prototype gate", type:"craft", focus:"Crown Qualifications", title:"Three Core Entries Functional", purpose:"Field-test working prototypes of the Soul Shard plushies, Book of Souls game aid, and Black Root Mask.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/CROWN_QUALS_BUILD_PLAN.md"},
+      {date:"2026-10-25", time:"Planning checkpoint · event date pending", type:"ceremony", focus:"Maize Maze", title:"Lock Maize Maze Celebration Plan", purpose:"Confirm the date, venue rules, ceremony order, bachelor-party coverage, combat block, drums, herald cues, and participants.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/MAIZE_MAZE_CELEBRATION_PACKAGE.md"},
+      {date:"2026-11-08", time:"Build sprint", type:"craft", focus:"Crown Qualifications", title:"Crown Quals Finish Sprint", purpose:"Resolve prototype failures and complete final construction on the three core entries before documentation work begins.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/CROWN_QUALS_BUILD_PLAN.md"},
+      {date:"2026-11-15", time:"Field pilot", type:"launch", focus:"Academy proof of practice", title:"F104 Small-Group Pilot", purpose:"Run the full F104 teaching loop, measure timing and the passing standard, then record the AAR.", sourceUrl:"https://docs.google.com/document/d/1zn2LPUNqWF2UXeDnhXraTZHR80e1m4IzdJZb5NWphQU/edit", sourceLabel:"Open Course"},
+      {date:"2026-11-22", time:"Functional completion gate", type:"craft", focus:"Crown Qualifications", title:"Core Crown Entries Complete", purpose:"Finish construction, safety checks, durability tests, artist statements, and the decision on optional entries four and five.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/CROWN_QUALS_BUILD_PLAN.md"},
+      {date:"2026-11-29", time:"Publishing checkpoint", type:"launch", focus:"Academy recruitment", title:"Release the Academy Invitation", purpose:"Publish what happens at practice, what to bring, the January 6 promise, and the interest/signup link.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/ACADEMY_LAUNCH_CAMPAIGN.md"},
+      {date:"2026-12-06", time:"Mock judging", type:"craft", focus:"Crown Qualifications", title:"Crown Portfolio Mock Judging", purpose:"Score every proposed entry for finish, function, originality, difficulty, documentation, and presentation.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/CROWN_QUALS_BUILD_PLAN.md"},
+      {date:"2026-12-13", time:"Full rehearsal", type:"launch", focus:"Academy launch", title:"Academy Launch Rehearsal", purpose:"Rehearse field setup, F104 delivery, safety response, attendance, content capture, AAR, and weather/attendance contingencies.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/ACADEMY_LAUNCH_CAMPAIGN.md"},
+      {date:"2026-12-20", time:"Internal hard deadline", type:"craft", focus:"Crown Qualifications", title:"Crown Portfolio Submission-Ready", purpose:"Finish, photograph, document, label, and pack every eligible entry unless the official deadline is earlier.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/CROWN_QUALS_BUILD_PLAN.md"},
+      {date:"2026-12-27", time:"Final readiness gate", type:"launch", focus:"Academy launch", title:"January Launch Kit Packed", purpose:"Freeze the launch plan; pack equipment, forms, signs, QR cards, F104 source, media kit, and backup supplies.", sourceUrl:"https://github.com/BlimBlam666/Academy-OS/blob/main/docs/ACADEMY_LAUNCH_CAMPAIGN.md"}
+    ],
     sundays: [
       {date:"2027-01-03", time:"12:00–4:00 PM", focus:"Coronation and opening", game:"Shadows Gather · Ditch", purpose:"One-life team elimination introduces the unseen threat without revealing it."},
       {date:"2027-01-10", time:"12:00–4:00 PM", focus:"Althing and equipment check", game:"Sound the Ward · Ring the Bell", purpose:"Attack and defend a fixed target; previews ward pressure."},

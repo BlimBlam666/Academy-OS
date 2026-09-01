@@ -13,6 +13,10 @@ const requiredFiles = [
   "PROJECT_CHARTER.md",
   "docs/F201_PILOT.md",
   "docs/FUNDAMENTALS_ROTATION.md",
+  "docs/ACADEMY_LAUNCH_CAMPAIGN.md",
+  "docs/RINCON_AMTGARD_INTRO_PACKAGE.md",
+  "docs/MAIZE_MAZE_CELEBRATION_PACKAGE.md",
+  "docs/CROWN_QUALS_BUILD_PLAN.md",
   "docs/DRIVE_INVENTORY.md",
   "docs/CONTENT_SYSTEM.md",
   "config/integrations.json",
@@ -36,6 +40,9 @@ const calendarSandbox = { window: {} };
 vm.runInNewContext(calendarSource, calendarSandbox, { filename: "academy-calendar.js" });
 const campaign = calendarSandbox.window.ACADEMY_CAMPAIGN_CALENDAR;
 if (!campaign || campaign.timezone !== "America/Phoenix") throw new Error("Campaign calendar is invalid");
+if (campaign.firstMonth !== "2026-09") throw new Error("Pre-launch calendar does not begin this month");
+if (!Array.isArray(campaign.milestones) || campaign.milestones.length < 10) throw new Error("Launch milestones are incomplete");
+if (!campaign.milestones.some((item) => item.title.includes("RinCon 2026"))) throw new Error("RinCon campaign date is missing");
 if (campaign.sundays.length !== 27) throw new Error("Sunday campaign calendar is incomplete");
 if (!campaign.sundays.some((item) => item.story && item.game === "The Masked Hunter")) throw new Error("Story game schedule is incomplete");
 

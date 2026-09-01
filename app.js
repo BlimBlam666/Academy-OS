@@ -7,7 +7,7 @@
   var CAMPAIGN_CONFIG = window.ACADEMY_CAMPAIGN_CALENDAR || {sundays:[]};
   var practiceSessions = buildPracticeSessions();
   var activePractice = null;
-  var calendarMonth = campaignMonthDate(CAMPAIGN_CONFIG.firstMonth || "2027-01");
+  var calendarMonth = initialCampaignMonth();
   var INTEGRATIONS = [
     {id:"drive",name:"Academy Drive Gateway",group:"Knowledge",description:"The Academy's shared Drive entry point and source network.",url:"https://drive.google.com/drive/folders/1bw6dw3yUQCiJUqgSV7lUnwkm0rTHIe6o"},
     {id:"courseLibrary",name:"Academy Course Library",group:"Curriculum",description:"Master curriculum library for fighter, civic, class, ladder, and knighthood tracks.",url:"https://drive.google.com/drive/folders/1WztnlzH92ZBptMBQWhPNRANSnYN4EHBG"},
@@ -165,6 +165,16 @@
     return new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
   }
 
+  function initialCampaignMonth() {
+    var first = CAMPAIGN_CONFIG.firstMonth || "2027-01";
+    var last = CAMPAIGN_CONFIG.lastMonth || first;
+    var now = new Date();
+    var current = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
+    if (current < first) current = first;
+    if (current > last) current = last;
+    return campaignMonthDate(current);
+  }
+
   function campaignPracticeDetails(index) {
     var games = [
       ["Militia Team Elimination", "Shadows Gather"],
@@ -184,8 +194,17 @@
         id:"park-" + index,
         type:item.story ? "story" : "park",
         title:item.game,
-        sourceUrl:CAMPAIGN_CONFIG.handbookUrl,
+        sourceUrl:item.sourceUrl || CAMPAIGN_CONFIG.handbookUrl,
         calendarUrl:CAMPAIGN_CONFIG.calendarUrl
+      });
+    });
+    var milestoneEvents = (CAMPAIGN_CONFIG.milestones || []).map(function (item, index) {
+      return Object.assign({}, item, {
+        id:"milestone-" + index,
+        type:item.type || "launch",
+        game:item.title,
+        calendarUrl:CAMPAIGN_CONFIG.calendarUrl,
+        sourceLabel:item.sourceLabel || "Open Plan"
       });
     });
     var courseEvents = practiceSessions.map(function (session, index) {
@@ -203,7 +222,7 @@
         calendarUrl:CAMPAIGN_CONFIG.calendarUrl
       };
     });
-    return parkEvents.concat(courseEvents).sort(function (a, b) {
+    return parkEvents.concat(courseEvents, milestoneEvents).sort(function (a, b) {
       return a.date.localeCompare(b.date) || (a.type === "practice" ? -1 : 1);
     });
   }
@@ -235,14 +254,14 @@
       var iso = year + "-" + String(month + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
       var dayEvents = monthEvents.filter(function (item) { return item.date === iso; });
       cells.push('<div class="calendar-day' + (dayEvents.length ? " has-event" : "") + '"><span class="calendar-date">' + day + '</span>' + dayEvents.map(function (item) {
-        return '<button class="calendar-chip ' + escapeHtml(item.type) + '" type="button" data-campaign-event="' + escapeHtml(item.id) + '"><b>' + escapeHtml(item.type === "practice" ? item.title : item.game) + '</b><small>' + escapeHtml(item.time) + '</small></button>';
+        return '<button class="calendar-chip ' + escapeHtml(item.type) + '" type="button" data-campaign-event="' + escapeHtml(item.id) + '"><b>' + escapeHtml(item.title || item.game) + '</b><small>' + escapeHtml(item.time) + '</small></button>';
       }).join("") + '</div>');
     }
     grid.innerHTML = cells.join("");
 
     var agenda = document.getElementById("calendar-agenda");
     agenda.innerHTML = monthEvents.length ? monthEvents.map(function (item) {
-      return '<button class="agenda-event ' + escapeHtml(item.type) + '" type="button" data-campaign-event="' + escapeHtml(item.id) + '"><time datetime="' + escapeHtml(item.date) + '">' + escapeHtml(campaignDate(item.date).toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"})) + '</time><span><b>' + escapeHtml(item.type === "practice" ? item.title : item.game) + '</b><small>' + escapeHtml(item.focus) + ' · ' + escapeHtml(item.time) + '</small></span><span aria-hidden="true">›</span></button>';
+      return '<button class="agenda-event ' + escapeHtml(item.type) + '" type="button" data-campaign-event="' + escapeHtml(item.id) + '"><time datetime="' + escapeHtml(item.date) + '">' + escapeHtml(campaignDate(item.date).toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"})) + '</time><span><b>' + escapeHtml(item.title || item.game) + '</b><small>' + escapeHtml(item.focus) + ' · ' + escapeHtml(item.time) + '</small></span><span aria-hidden="true">›</span></button>';
     }).join("") : '<p class="empty-state">No confirmed campaign events are loaded for this month.</p>';
 
     var first = CAMPAIGN_CONFIG.firstMonth || "2027-01";
@@ -256,11 +275,13 @@
     var item = campaignEvents().find(function (candidate) { return candidate.id === id; });
     if (!item) return;
     var dialog = document.getElementById("calendar-event-dialog");
-    document.getElementById("calendar-dialog-type").textContent = item.type === "practice" ? "Wednesday Fighters Practice" : (item.story ? "Story-changing Sunday game" : "Sunday Park Day");
-    document.getElementById("calendar-dialog-title").textContent = item.type === "practice" ? item.title : item.game;
+    var typeLabels = {practice:"Wednesday Fighters Practice", story:"Story-changing Sunday game", park:"Sunday Park Day", launch:"Academy Launch Campaign", outreach:"Public Outreach", craft:"Crown Qualifications", ceremony:"Community Celebration"};
+    document.getElementById("calendar-dialog-type").textContent = typeLabels[item.type] || "Campaign Event";
+    document.getElementById("calendar-dialog-title").textContent = item.title || item.game;
     document.getElementById("calendar-dialog-meta").innerHTML = '<span>' + escapeHtml(campaignDate(item.date).toLocaleDateString([], {weekday:"long",month:"long",day:"numeric",year:"numeric"})) + '</span><span>' + escapeHtml(item.time) + '</span><span>' + escapeHtml(item.focus) + '</span>';
     document.getElementById("calendar-dialog-purpose").textContent = item.purpose;
-    document.getElementById("calendar-dialog-actions").innerHTML = '<a class="primary-button link-button" href="' + escapeHtml(item.sourceUrl) + '" target="_blank" rel="noopener">' + (item.type === "practice" ? "Open Course" : "Open Field Handbook") + ' ↗</a><a class="quiet-button link-button" href="' + escapeHtml(item.calendarUrl) + '" target="_blank" rel="noopener">Open Google Calendar ↗</a>';
+    var sourceLabel = item.type === "practice" ? "Open Course" : (item.sourceLabel || (item.type === "park" || item.type === "story" ? "Open Battle Game" : "Open Plan"));
+    document.getElementById("calendar-dialog-actions").innerHTML = '<a class="primary-button link-button" href="' + escapeHtml(item.sourceUrl) + '" target="_blank" rel="noopener">' + escapeHtml(sourceLabel) + ' ↗</a><a class="quiet-button link-button" href="' + escapeHtml(item.calendarUrl) + '" target="_blank" rel="noopener">Open Google Calendar ↗</a>';
     dialog.showModal();
   }
 
