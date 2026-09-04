@@ -9,6 +9,7 @@ A portable command layer for running the Academy of Mercenary Arts: operations, 
 This repository contains the first working Academy OS pilot:
 
 - **Command Hall** — a medieval-fantasy operations dashboard
+- **RinCon Mission Control** — five-part public program, daily watch, readiness ledger, media shot list, and complete field-reference vault for October 2–4, 2026
 - **Practice Forge** — an automatically advancing Wednesday fundamentals rotation beginning with F104: The Ready Stance on January 6, 2027
 - **Content Foundry** — local-first drafting and approval workflow for Academy social content
 - **Integration Registry** — authoritative Academy links, editable without storing passwords or tokens
@@ -76,8 +77,11 @@ The content workflow deliberately stops before publication. A person must review
 - `docs/F201_PILOT.md` — archived superseded F201 pilot plan
 - `docs/DRIVE_INVENTORY.md` — mapped Drive libraries, authority boundaries, and catalog notes
 - `docs/CONTENT_SYSTEM.md` — content-production operating procedure
+- `docs/rincon/` — RinCon master plan, workshop agendas, staff system, demo library, materials, media, and AAR package
+- RinCon field-file vault in Google Drive — field-ready F102 agenda, printable display set, and projector advertisement
 - `config/integrations.json` — non-secret integration registry
 - `config/practice-schedule.js` — dated course rotation and course-specific Practice Forge data
+- `config/rincon-event.js` — confirmed RinCon program, operating hours, readiness checklist, and reference links
 - `omarchy-theme/academy/` — installable local Omarchy theme
 - `scripts/install-omarchy.sh` — reversible local installer
 - `.github/workflows/` — verification and GitHub Pages deployment

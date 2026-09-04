@@ -8,7 +8,7 @@
   <title>Academy OS · Command Hall</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/crest.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=20260901">
+  <link rel="stylesheet" href="styles.css?v=20260904">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to command content</a>
@@ -31,6 +31,7 @@
   <nav class="command-nav" aria-label="Academy OS sections">
     <button class="nav-button active" data-view="hall">Command Hall</button>
     <button class="nav-button" data-view="practice">Practice Forge</button>
+    <button class="nav-button" data-view="rincon">RinCon Mission</button>
     <button class="nav-button" data-view="calendar">Campaign Calendar</button>
     <button class="nav-button" data-view="content">Content Foundry</button>
     <button class="nav-button" data-view="integrations">Gatehouse</button>
@@ -168,6 +169,58 @@
       </article>
     </section>
 
+    <section class="view" id="view-rincon">
+      <div class="rincon-hero panel">
+        <div>
+          <p class="eyebrow">First Command Hall Field Operation</p>
+          <h2 id="rincon-title">Amtgard at RinCon 2026</h2>
+          <p id="rincon-location">October 2–4 · Casino Del Sol Conference Center</p>
+          <div class="button-row">
+            <a id="rincon-master-plan" class="primary-button link-button" href="#" target="_blank" rel="noopener">Open Master Plan ↗</a>
+            <a id="rincon-volunteers" class="quiet-button link-button" href="#" target="_blank" rel="noopener">Volunteer Sign-Up ↗</a>
+            <a id="rincon-public-site" class="quiet-button link-button" href="#" target="_blank" rel="noopener">Public Recruit Site ↗</a>
+          </div>
+        </div>
+        <div class="rincon-countdown">
+          <span id="rincon-days">--</span>
+          <small id="rincon-countdown-label">days until doors open</small>
+          <b id="rincon-status">Loading operation…</b>
+        </div>
+      </div>
+
+      <div class="rincon-layout">
+        <article class="panel span-two">
+          <div class="panel-heading"><div><p class="eyebrow">Public Program</p><h3>Five ways into Amtgard</h3></div><span class="count-badge">5</span></div>
+          <div id="rincon-programs" class="program-grid"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading"><div><p class="eyebrow">Readiness Ledger</p><h3>Before the gates open</h3></div><span id="rincon-readiness-count" class="count-badge">0/0</span></div>
+          <div id="rincon-readiness" class="mission-checklist"></div>
+        </article>
+
+        <article class="panel">
+          <p class="eyebrow">Daily Watch</p>
+          <h3>Confirmed operating hours</h3>
+          <div id="rincon-days-list" class="daily-watch"></div>
+        </article>
+
+        <article class="panel span-two">
+          <div class="panel-heading"><div><p class="eyebrow">Operations Vault</p><h3>Agendas, print files, and field references</h3></div></div>
+          <div id="rincon-resources" class="resource-grid"></div>
+        </article>
+
+        <article class="panel span-two">
+          <div class="panel-heading">
+            <div><p class="eyebrow">Content Expedition</p><h3>Capture the experience without losing the experience</h3></div>
+            <button id="rincon-send-to-foundry" class="quiet-button" type="button">Send RinCon to Foundry</button>
+          </div>
+          <p class="subtle">Check a shot only after its consent and privacy status are recorded. Participation is never permission to publish.</p>
+          <div id="rincon-content-shots" class="shot-grid"></div>
+        </article>
+      </div>
+    </section>
+
     <section class="view" id="view-calendar">
       <div class="section-intro calendar-intro">
         <div>
@@ -288,8 +341,9 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
   <footer><span>Academy OS · Phase I</span><span>Public code. Local records. Human judgment.</span></footer>
-  <script src="config/practice-schedule.js?v=20260901"></script>
-  <script src="config/academy-calendar.js?v=20260901"></script>
-  <script src="app.js?v=20260901"></script>
+  <script src="config/practice-schedule.js?v=20260904"></script>
+  <script src="config/academy-calendar.js?v=20260904"></script>
+  <script src="config/rincon-event.js?v=20260904"></script>
+  <script src="app.js?v=20260904"></script>
 </body>
 </html>

@@ -1,5 +1,7 @@
 # RinCon Amtgard Introduction Package
 
+> This original introduction brief is retained for history. The current working package is [RinCon 2026 Mission Control](rincon/RINCON_MISSION_CONTROL.md), with separate workshop, staff, materials, media, and follow-up runbooks.
+
 **RinCon 2026:** October 2–4, Casino Del Sol Conference Center, Tucson, Arizona.
 
 This package introduces people to Amtgard through safe craft, supervised play, and a clear next step. It is designed for Obsidian Gate's RinCon presence and the Academy's January 6 launch. The Academy is not an official Amtgard program; current Amtgard rules and RinCon/venue instructions control.
@@ -83,4 +85,3 @@ No role should be double-booked during an active class.
 - Opt-in contacts and promised follow-ups
 - Approved photos/video and restrictions
 - One change before the next workshop
-

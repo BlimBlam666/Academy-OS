@@ -5,6 +5,7 @@
   var STAGES = ["Captured", "Drafted", "Reviewed", "Scheduled", "Published"];
   var PRACTICE_CONFIG = window.ACADEMY_PRACTICE_SCHEDULE || {courses:[]};
   var CAMPAIGN_CONFIG = window.ACADEMY_CAMPAIGN_CALENDAR || {sundays:[]};
+  var RINCON_CONFIG = window.ACADEMY_RINCON_EVENT || {programs:[],resources:[],readiness:[],contentShots:[],days:[]};
   var practiceSessions = buildPracticeSessions();
   var activePractice = null;
   var calendarMonth = initialCampaignMonth();
@@ -35,6 +36,8 @@
     {id:"blackRootBook",name:"Black Root Reign Book",group:"Operations",description:"Black Root Reign v2 campaign and narrative source.",url:"https://docs.google.com/document/d/1NcYgnK_LOC_pzmAqaKfF6HM-LYJODPGOSaRL263JRx8/edit"},
     {id:"blackRootPublic",name:"Black Root Public Sheets",group:"Operations",description:"Participant-facing reign sheets and public operational materials.",url:"https://drive.google.com/drive/folders/10PcE5AvBzc62Cy5bB6Lptu3g1eocZBVU"},
     {id:"calendar",name:"Academy Calendar",group:"Operations",description:"Schedule practices, events, deadlines, and publishing.",url:"https://calendar.google.com/calendar/u/0/r"},
+    {id:"rinconSite",name:"Amtgard at RinCon",group:"Outreach",description:"Public newcomer page for the convention and January 6 Academy invitation.",url:"https://blimblam666.github.io/AMTGARD_At_RinCon/"},
+    {id:"rinconVolunteers",name:"RinCon Volunteer Sign-Up",group:"Operations",description:"Live staffing and shift-coverage sheet for October 2–4.",url:"https://docs.google.com/spreadsheets/d/1Udlmi7UVqWyJTMsczCREIsUO-GLDS_8btiwl4XsXos0/edit"},
     {id:"fighterCoach",name:"Academy Fighter Coach",group:"Training",description:"Deliberate-practice sessions, logs, and Warlord Path.",url:"https://blimblam666.github.io/foam-fighting-mobile-coach/"},
     {id:"scorer",name:"Tournament Scorer",group:"Training",description:"Bear Pit, single-elimination, and double-elimination scoring.",url:"https://blimblam666.github.io/Academy_Tournament_Scorer/"},
     {id:"ork",name:"ORK",group:"Amtgard",description:"Amtgard records, park, household, and awards resources.",url:"https://ork.amtgard.com/orkui/"},
@@ -50,9 +53,12 @@
       {id:"q-theme",text:"Install and select the Academy Omarchy theme",done:false},
       {id:"q-gates",text:"Verified Academy social gates connected",done:true},
       {id:"q-library",text:"Four Academy Drive libraries indexed",done:true},
-      {id:"q-pilot",text:"Prepare the January 6 F104 fundamentals practice",done:false}
+      {id:"q-pilot",text:"Prepare the January 6 F104 fundamentals practice",done:false},
+      {id:"q-rincon",text:"Complete the RinCon readiness ledger and confirm class times",done:false}
     ],
     practiceChecks:{},
+    rinconChecks:{},
+    rinconShots:{},
     aars:[],
     integrations:{},
     contentQueue:[],
@@ -80,6 +86,11 @@
       if (quest.id === "q-pilot") quest.text = "Prepare the January 6 F104 fundamentals practice";
       return quest;
     });
+    if (!base.quests.some(function (quest) { return quest.id === "q-rincon"; })) {
+      base.quests.push({id:"q-rincon",text:"Complete the RinCon readiness ledger and confirm class times",done:false});
+    }
+    base.rinconChecks = base.rinconChecks || {};
+    base.rinconShots = base.rinconShots || {};
     return base;
   }
 
@@ -363,6 +374,21 @@
     document.getElementById("today").textContent = now.toLocaleDateString([], {weekday:"long",month:"long",day:"numeric",year:"numeric"});
     var session = scheduledPractice();
     var countdown = document.getElementById("countdown");
+    var rinconOpen = RINCON_CONFIG.startDate ? campaignDate(RINCON_CONFIG.startDate) : null;
+    var rinconClose = RINCON_CONFIG.endDate ? new Date(campaignDate(RINCON_CONFIG.endDate).getTime() + 43200000) : null;
+    if (rinconOpen && now < rinconClose) {
+      var rinconDistance = rinconOpen.getTime() - now.getTime();
+      document.getElementById("next-event-label").textContent = rinconDistance > 0 ? "Next field operation" : "Field operation underway";
+      document.getElementById("next-event-course").textContent = RINCON_CONFIG.title;
+      document.getElementById("next-event-date").textContent = RINCON_CONFIG.dates + " · " + RINCON_CONFIG.venue;
+      if (rinconDistance <= 0) countdown.textContent = "RinCon is underway · open Mission Control";
+      else {
+        var rinconDays = Math.floor(rinconDistance / 86400000);
+        var rinconHours = Math.floor((rinconDistance % 86400000) / 3600000);
+        countdown.textContent = rinconDays + " days · " + rinconHours + " hours until move-in";
+      }
+      return;
+    }
     if (!session) {
       countdown.textContent = "No practice course is scheduled";
       return;
@@ -388,12 +414,81 @@
   updateClock();
   window.setInterval(updateClock, 30000);
 
+  function renderRinCon() {
+    if (!RINCON_CONFIG.title) return;
+    document.getElementById("rincon-title").textContent = RINCON_CONFIG.title;
+    document.getElementById("rincon-location").textContent = RINCON_CONFIG.dates + " · " + RINCON_CONFIG.venue + " · " + RINCON_CONFIG.location;
+    document.getElementById("rincon-status").textContent = RINCON_CONFIG.status;
+    document.getElementById("rincon-master-plan").href = RINCON_CONFIG.missionControlUrl;
+    document.getElementById("rincon-volunteers").href = RINCON_CONFIG.volunteerSheet;
+    document.getElementById("rincon-public-site").href = RINCON_CONFIG.publicSite;
+
+    var now = new Date();
+    var opening = campaignDate(RINCON_CONFIG.startDate);
+    var closing = new Date(campaignDate(RINCON_CONFIG.endDate).getTime() + 43200000);
+    var days = Math.ceil((opening.getTime() - now.getTime()) / 86400000);
+    var daysNode = document.getElementById("rincon-days");
+    var labelNode = document.getElementById("rincon-countdown-label");
+    if (now > closing) { daysNode.textContent = "AAR"; labelNode.textContent = "close the loop and preserve the lesson"; }
+    else if (days <= 0) { daysNode.textContent = "NOW"; labelNode.textContent = "RinCon field operation underway"; }
+    else { daysNode.textContent = days; labelNode.textContent = days === 1 ? "day until doors open" : "days until doors open"; }
+
+    document.getElementById("rincon-programs").innerHTML = RINCON_CONFIG.programs.map(function (program) {
+      return '<article class="program-card"><div class="program-meta"><span>' + escapeHtml(program.badge) + '</span><span>' + escapeHtml(program.status) + '</span></div><h4>' + escapeHtml(program.title) + '</h4><p>' + escapeHtml(program.summary) + '</p><a class="quiet-button link-button" href="' + escapeHtml(program.agendaUrl) + '" target="_blank" rel="noopener">' + escapeHtml(program.action) + ' ↗</a></article>';
+    }).join("");
+
+    document.getElementById("rincon-days-list").innerHTML = RINCON_CONFIG.days.map(function (day) {
+      return '<div class="watch-day"><b>' + escapeHtml(day.label) + '</b><small>' + escapeHtml(day.hours) + '</small>' + day.blocks.map(function (block) { return '<span>' + escapeHtml(block) + '</span>'; }).join("") + '</div>';
+    }).join("");
+
+    document.getElementById("rincon-resources").innerHTML = RINCON_CONFIG.resources.map(function (resource) {
+      return '<a class="resource-card" href="' + escapeHtml(resource.url) + '" target="_blank" rel="noopener"><span>' + escapeHtml(resource.kind) + '</span><b>' + escapeHtml(resource.title) + '</b></a>';
+    }).join("");
+
+    document.getElementById("rincon-readiness").innerHTML = RINCON_CONFIG.readiness.map(function (item) {
+      return '<label class="mission-check"><input type="checkbox" data-rincon-check="' + escapeHtml(item.id) + '" ' + (state.rinconChecks[item.id] ? "checked" : "") + '><span>' + escapeHtml(item.label) + '</span></label>';
+    }).join("");
+    document.querySelectorAll("[data-rincon-check]").forEach(function (input) {
+      input.addEventListener("change", function () {
+        state.rinconChecks[input.dataset.rinconCheck] = input.checked;
+        saveState(); updateRinConReadiness();
+      });
+    });
+
+    document.getElementById("rincon-content-shots").innerHTML = RINCON_CONFIG.contentShots.map(function (item) {
+      return '<label class="mission-check"><input type="checkbox" data-rincon-shot="' + escapeHtml(item.id) + '" ' + (state.rinconShots[item.id] ? "checked" : "") + '><span>' + escapeHtml(item.label) + '</span></label>';
+    }).join("");
+    document.querySelectorAll("[data-rincon-shot]").forEach(function (input) {
+      input.addEventListener("change", function () {
+        state.rinconShots[input.dataset.rinconShot] = input.checked;
+        saveState();
+      });
+    });
+    updateRinConReadiness();
+  }
+
+  function updateRinConReadiness() {
+    var done = RINCON_CONFIG.readiness.filter(function (item) { return state.rinconChecks[item.id]; }).length;
+    document.getElementById("rincon-readiness-count").textContent = done + "/" + RINCON_CONFIG.readiness.length;
+  }
+
+  document.getElementById("rincon-send-to-foundry").addEventListener("click", function () {
+    document.getElementById("content-event").value = "Amtgard at RinCon 2026";
+    document.getElementById("content-audience").value = "RinCon visitors, Tucson newcomers, and future Academy cadets";
+    document.getElementById("content-cta").value = "Join Obsidian Gate and continue at the Academy launch on January 6, 2027.";
+    document.getElementById("content-moment").value = "";
+    document.getElementById("content-lesson").value = "";
+    showView("content");
+    document.getElementById("content-moment").focus();
+    toast("RinCon source loaded. Add the true moment and lesson before forging drafts.");
+  });
+
   function integrationUrl(item) {
     return state.integrations[item.id] || item.url || "";
   }
 
   function renderQuickLinks() {
-    var ids = ["courseLibrary","masterIndex","academyResources","reignHandbook","calendar","fighterCoach","scorer","ork","youtube","github"];
+    var ids = ["rinconSite","rinconVolunteers","courseLibrary","academyResources","reignHandbook","calendar","fighterCoach","scorer","ork","youtube","github"];
     var holder = document.getElementById("quick-links");
     holder.innerHTML = ids.map(function (id) {
       var item = INTEGRATIONS.find(function (candidate) { return candidate.id === id; });
@@ -696,6 +791,7 @@
 
   function initializeRenders() {
     renderPractice();
+    renderRinCon();
     renderCampaignCalendar();
     bindPracticeChecks();
     renderQuickLinks();

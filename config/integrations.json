@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "generated": "2026-09-01",
   "security": "Public and shared URLs only. No passwords, tokens, rosters, private records, or unpublished member data are copied into Academy OS.",
   "access": "Google Drive permissions remain authoritative; Academy OS only provides gates to source material.",
@@ -29,6 +29,20 @@
       "group": "Knowledge",
       "status": "connected",
       "url": "https://drive.google.com/drive/folders/1bw6dw3yUQCiJUqgSV7lUnwkm0rTHIe6o"
+    },
+    {
+      "id": "rinconSite",
+      "name": "Amtgard at RinCon",
+      "group": "Outreach",
+      "status": "connected",
+      "url": "https://blimblam666.github.io/AMTGARD_At_RinCon/"
+    },
+    {
+      "id": "rinconVolunteers",
+      "name": "RinCon Volunteer Sign-Up",
+      "group": "Operations",
+      "status": "connected",
+      "url": "https://docs.google.com/spreadsheets/d/1Udlmi7UVqWyJTMsczCREIsUO-GLDS_8btiwl4XsXos0/edit"
     },
     {
       "id": "courseLibrary",
