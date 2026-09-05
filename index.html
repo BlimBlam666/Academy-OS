@@ -8,7 +8,7 @@
   <title>Academy OS · Command Hall</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/crest.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=20260904">
+  <link rel="stylesheet" href="styles.css?v=20260905">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to command content</a>
@@ -119,6 +119,21 @@
         <a id="practice-course-link" class="primary-button link-button" href="#" target="_blank" rel="noopener">Open Current Course ↗</a>
       </div>
 
+      <article class="panel forge-controls" aria-label="Practice Forge track controls">
+        <div>
+          <p class="eyebrow">Forge Track</p>
+          <div class="track-switch" role="group" aria-label="Choose teaching track">
+            <button class="track-button" type="button" data-practice-track="rincon" aria-pressed="false">RinCon Rehearsals</button>
+            <button class="track-button" type="button" data-practice-track="academy" aria-pressed="false">Academy Wednesdays</button>
+          </div>
+        </div>
+        <div class="forge-automation">
+          <span id="practice-review-status" class="status-pill">Calculating review window</span>
+          <b id="practice-track-window">Loading the teaching queue…</b>
+          <small id="practice-automation-note">The next dated session is selected automatically.</small>
+        </div>
+      </article>
+
       <div class="practice-layout">
         <article class="panel runbook">
           <div id="practice-meta" class="runbook-meta"></div>
@@ -146,9 +161,12 @@
           </article>
           <article class="panel">
             <p class="eyebrow">Course Rotation</p>
-            <h3>Upcoming Wednesdays</h3>
+            <h3 id="practice-rotation-title">Upcoming Wednesdays</h3>
             <div id="practice-rotation" class="rotation-list"></div>
-            <p id="next-practice" class="subtle"></p>
+          </article>
+          <article class="panel next-course-panel">
+            <p class="eyebrow">Next in Queue</p>
+            <div id="next-practice" class="next-course-card"></div>
           </article>
         </aside>
       </div>
@@ -341,9 +359,9 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
   <footer><span>Academy OS · Phase I</span><span>Public code. Local records. Human judgment.</span></footer>
-  <script src="config/practice-schedule.js?v=20260904"></script>
-  <script src="config/academy-calendar.js?v=20260904"></script>
-  <script src="config/rincon-event.js?v=20260904"></script>
-  <script src="app.js?v=20260904"></script>
+  <script src="config/practice-schedule.js?v=20260905"></script>
+  <script src="config/academy-calendar.js?v=20260905"></script>
+  <script src="config/rincon-event.js?v=20260905"></script>
+  <script src="app.js?v=20260905"></script>
 </body>
 </html>

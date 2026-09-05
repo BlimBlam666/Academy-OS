@@ -2,10 +2,12 @@
   "use strict";
 
   window.ACADEMY_PRACTICE_SCHEDULE = {
-    version: 1,
+    version: 2,
     timezone: "America/Phoenix",
     startDate: "2027-01-06",
     cadenceDays: 7,
+    previewDays: 7,
+    rolloverHour: 21,
     timeLabel: "7:00–9:00 PM",
     prepMinutes: 15,
     closeoutMinutes: 20,
@@ -100,6 +102,171 @@
         opening: "Fighting gives experience. Drilling gives structure. Practice one thing with attention, feedback, and adjustment.",
         closing: "Do not despise small repetitions. Practice one thing. Learn one truth. Repeat.",
         application: "Turn practice into a drill laboratory. Each pair selects one skill, runs the learning loop, and records one useful adjustment."
+      },
+      {
+        code:"F201", title:"Footwork 101", sourceUrl:"https://drive.google.com/file/d/1G1nnnYGI52_RrJmtDNSTHn6YJ-EJeYJ6/view",
+        motto:"Move with purpose. Recover with discipline.",
+        purpose:"Move intentionally while preserving stance, guard, balance, and field awareness; understand why to move, when to move, and how to return ready.",
+        drills:["Four-Direction Forge","Moving Guard Lane","Mirror Step","One Step, One Purpose"],
+        cues:["Separate tracks","Feet low","Guard alive","Small steps first","Ready again"],
+        standards:["Move in four directions safely","Pivot to keep facing an opponent","Keep guard alive while moving","Recover to ready stance after each step","Name the purpose of a movement"],
+        opening:"The feet begin the fight before the sword moves. A small step taken with purpose is better than a brave leap into ruin.",
+        closing:"A fighter who moves with purpose becomes hard to find and harder to fool. Step well. Recover well. Continue.",
+        application:"Run mirror movement and one-step exchanges. Score purposeful range, angle, balance, timing, and immediate stance recovery."
+      },
+      {
+        code:"F202", title:"Range 101", sourceUrl:"https://drive.google.com/file/d/1E1YP7Ld2yD1Sc1HcRT8v9wErNERVWWAh/view",
+        motto:"Know the distance. Know the danger.",
+        purpose:"Identify close, medium, and long range; understand how footwork, angle, target, weapon length, and opponent movement change the threat.",
+        drills:["Three Range Walk","Target Reach Map","Step Changes Range","Range Reset Exchange"],
+        cues:["Respect the feet","Range is dynamic","Choose the reachable target","Do not overreach","Reset after contact"],
+        standards:["Define close, medium, and long range","Identify whether a shot needs no step, half step, or full step","Explain why targets have different reach","Reset after contact without freezing"],
+        opening:"Range is the law of the field. A shot that cannot reach cannot kill you. Distance becomes defense, choice, and calm.",
+        closing:"Distance is not emptiness. It is information. Read it, guard it, and use it.",
+        application:"Run one-action exchanges where both fighters must identify the range before acting and reset to medium or long range after contact."
+      },
+      {
+        code:"F203", title:"Range Gates", sourceUrl:"https://drive.google.com/file/d/19Ds8Jhk_EdImNFkpZXaa9IiVIuMX9aTR/view",
+        motto:"Cross the gate with a plan.",
+        purpose:"Recognize the threshold between safe and dangerous range, then enter, exit, or deny entry with guard and control.",
+        drills:["Mark the Gate","Enter, Touch, Exit","Deny the Gate","Gate Decision Round"],
+        cues:["Guard first","One target","Leave clean","One small denial step","Do not run the gate"],
+        standards:["Name the range gate in a partner demonstration","Enter with guard and one target","Exit after action without standing open","Deny a slow entry without panic movement"],
+        opening:"Every fight has a gate. Do not stumble through it. Cross with purpose or keep your opponent from crossing it at all.",
+        closing:"Cross with calm purpose. Deny with patient discipline. Know when danger begins.",
+        application:"Use controlled gate rounds: one fighter enters with a declared target while the other denies, then both freeze and review balance and guard."
+      },
+      {
+        code:"F204", title:"The 45-Degree Entry", sourceUrl:"https://drive.google.com/file/d/1STcnqVQP40hlcOPPY5cINF32nKMiamtU/view",
+        motto:"Do not walk into the blade. Step to the door.",
+        purpose:"Enter on an angle to create pressure and target access without overcommitting, turning away, or abandoning guard.",
+        drills:["Cone Angle Map","45 With Guard","Target Appears","Entry and Out"],
+        cues:["Guard arrives with the body","Name the target","Do not crowd","Keep the opponent in view","Finish with recovery"],
+        standards:["Show straight, side, and 45-degree movement","Explain what the angle gains and sacrifices","Step to angle with guard present","Touch a target and recover without overcommitting"],
+        opening:"A straight road is easy to guard. An angle asks a new question and creates a moment where skill begins.",
+        closing:"Step to the door that opens the fight, not the road your opponent already guards.",
+        application:"Run single-entry rounds from medium range: step to the 45, touch the newly available target, then exit or recover before resetting."
+      },
+      {
+        code:"F205", title:"The Lateral Exit", sourceUrl:"https://drive.google.com/file/d/1iq8PtGuzuhjzBQ2CVSxP3UqqmdLsjTCc/view",
+        motto:"Strike, recover, leave the line.",
+        purpose:"Exit laterally after attacking, blocking, missing, or receiving pressure so the fighter does not remain on the opponent's return line.",
+        drills:["Exit Footprints","Shot and Side","Block and Exit","Miss Recovery"],
+        cues:["Action then angle","Eyes stay on","Guard while moving","Do not admire the shot","Recover off the line"],
+        standards:["Exit laterally after a shot","Exit laterally after a block","Recover guard while moving","Keep eyes on the opponent","Explain why exiting protects against returns"],
+        opening:"A shot is finished only when you are safe again. Act, recover, and leave the line.",
+        closing:"Do not remain where your old choice has ended. Move to the next useful position.",
+        application:"Require a lateral exit after every single shot, block, or miss; partners then check whether the return line remained open."
+      },
+      {
+        code:"F206", title:"Half-Steps and Micro-Adjustments", sourceUrl:"https://drive.google.com/file/d/1oc-FIQp2TsmkN9z8_KA0mYvolVw0My3m/view",
+        motto:"Inches decide exchanges.",
+        purpose:"Use small movements to change range, draw reactions, and improve position without surrendering balance through a full commitment.",
+        drills:["Inch Line","Small Step, Big Read","Half-Step Target Tap","Micro Exit"],
+        cues:["Move only enough","Watch the reaction","Guard stays alive","Own the inch","Balance before speed"],
+        standards:["Demonstrate half-steps in three directions","Use a half-step to enter and exit range","Name the reaction the movement caused","Maintain balance and guard during micro-adjustments"],
+        opening:"Often the field turns on an inch: out of their reach, into yours, or beside the return.",
+        closing:"Rule the small distances, and the larger field begins to obey.",
+        application:"Run micro-range exchanges where only half-steps are allowed until a clean target appears; reset after one controlled action."
+      },
+      {
+        code:"F207", title:"Balance Under Pressure", sourceUrl:"https://drive.google.com/file/d/1lFi4GVguAUsf610EqL_DHCsQqFAvV86-/view",
+        motto:"Root enough to act. Move enough to live.",
+        purpose:"Maintain useful balance when an opponent advances or threatens; resist crossing feet, leaning, collapsing, overreaching, and freezing.",
+        drills:["Balance Diagnosis","Light Pressure Compass","Threat Step Recovery","Miss and Rebuild"],
+        cues:["Breathe","Feet on tracks","Move the feet first","Rebuild after the miss","Stay able to choose"],
+        standards:["Maintain stance under light directional pressure","Retreat and angle without crossing feet","Recover after a miss","Name one personal balance error to watch for"],
+        opening:"A stance that works only when no one threatens you is not yet yours. Pressure reveals the fighter.",
+        closing:"Meet pressure with breath, stance, and honest correction. Stay balanced enough to choose.",
+        application:"Use progressive pressure rounds: advance, threaten, and force movement while scoring only balance, guard, and recovery."
+      },
+      {
+        code:"F208", title:"Basic Blocking", sourceUrl:"https://drive.google.com/file/d/1sVSw3vTYCjBdCvGcBT8ikkHAJBNP6sNK/view",
+        motto:"Close the line. Keep the hand alive.",
+        purpose:"Close incoming attack lines with weapon or shield using calm structure and minimal motion, then recover immediately.",
+        drills:["Line Pointing","Slow Weapon Block","Shield Coverage Check","Block and Reset"],
+        cues:["Meet the line","Move only enough","Block near the hand","Do not swat","Recover guard"],
+        standards:["Name basic incoming lines","Block a slow known shot with weapon or shield","Use minimal motion","Recover guard after blocking","Explain why blocking near the hand is stronger"],
+        opening:"A block is not a panic swing. It is a calm decision to close the line before it reaches you.",
+        closing:"Place order between danger and the body. Close the line, recover the guard, and let calm become armor.",
+        application:"Run known-line defense first, then limited-choice rounds where the defender identifies, closes, and resets after one attack."
+      },
+      {
+        code:"F209", title:"Block-Strike Basics", sourceUrl:"https://drive.google.com/file/d/1O0LdzfV2WykFgiqrxV4DswmdEoz284hy/view",
+        motto:"Block first. Return clean. Recover always.",
+        purpose:"Use the block-strike drill to build defense, return timing, target discipline, and recovery without turning the drill into a contest.",
+        drills:["Empty Pattern Walkthrough","Basic Block-Strike","Freeze the Block","One Variation Round"],
+        cues:["Honor the agreement","Block before return","Known shot, known answer","Start slow enough","Recover every time"],
+        standards:["Explain the purpose of block-strike","Run the drill safely at slow speed","Block before returning","Recover guard after each action","Modify one variable without losing structure"],
+        opening:"A drill is an agreement. We remove chaos so one skill can grow.",
+        closing:"The drill is a forge, not a throne. Enter humbly, repeat cleanly, and learn what chaos hides.",
+        application:"Progress from fixed block-strike to one controlled variable—line, range, or timing—while preserving the agreed structure."
+      },
+      {
+        code:"F210", title:"The Three Basic Attacks", sourceUrl:"https://drive.google.com/file/d/1Urtr9Lr6F1lqIzqbK1hQeT3If9tZwNCr/view",
+        motto:"Choose the line. Throw clean. Recover ready.",
+        purpose:"Build a simple offensive foundation using controlled, readable attacks to the shoulder, hip, and leg lines.",
+        drills:["Three-Line Air Reps","Name and Tap","Range Choice","One-Shot Application"],
+        cues:["Name the line","Target before speed","Use the needed range","Readable contact","Recover ready"],
+        standards:["Demonstrate shoulder, hip, and leg lines safely","Name a target before attacking","Explain which range each line needs","Recover after every shot"],
+        opening:"A fighter does not need a hundred tricks to begin. Three clean roads are enough for a disciplined start.",
+        closing:"Begin with three clean roads. Walk them well, and more roads will reveal themselves.",
+        application:"Use one-shot rounds where the attacker names the intended line, finds the proper range, acts once, and recovers."
+      },
+      {
+        code:"F211", title:"Target Selection", sourceUrl:"https://drive.google.com/file/d/1vsM3LhBqbD-DNAsB9nM5Cq1l5PUVJ7-u/view",
+        motto:"Strike what is open, not what pride desires.",
+        purpose:"Choose targets based on range, guard, angle, risk, and recovery—including the disciplined choice not to attack.",
+        drills:["Target Call Walkthrough","Open/Closed Partner Scan","One Target, One Reason","Favorite Shot Denial"],
+        cues:["See what is open","Range before desire","Name the reason","Legal is not always safe","Disengage is a choice"],
+        standards:["Identify open and closed targets","Choose a target based on range and guard","Explain when disengage is correct","Avoid forcing a favorite shot into a bad position"],
+        opening:"Good target selection is humility in motion: ask what is actually available.",
+        closing:"Judgment points at the target that can be taken cleanly. Follow judgment; glory may follow later.",
+        application:"Run scan-and-choose rounds where the attacker must name the available target or disengage before one controlled exchange."
+      },
+      {
+        code:"F212", title:"Recovery After Missing", sourceUrl:"https://drive.google.com/file/d/1sa-WfElqU8IAH9q2FO8ZjdMrYfUcjhYr/view",
+        motto:"Miss clean. Recover faster.",
+        purpose:"Recover guard, balance, and range immediately after a missed, blocked, or failed attack instead of chasing, flailing, or freezing.",
+        drills:["Miss and Freeze","Miss and Exit","Blocked Shot Recovery","One Question Reset"],
+        cues:["Miss, recover, leave","Structure first","No revenge shot","Eyes return","Take the information"],
+        standards:["Recover guard after a miss","Exit after a miss without turning away","Block or avoid a slow return after a blocked shot","Name one reason the miss happened"],
+        opening:"Missing is not failure. Staying open after missing is failure.",
+        closing:"Return to order before the opponent can harvest the mistake. Miss clean. Recover faster.",
+        application:"Partners remove or block the offered target; the attacker must recover and exit before receiving a slow controlled return."
+      },
+      {
+        code:"F213", title:"Fighting While Wounded", sourceUrl:"https://drive.google.com/file/d/11rBRKoB3fK9FSSAGNGd7Au1v2EQGHvpa/view",
+        motto:"Wounded is not useless. Wounded is different.",
+        purpose:"Respond safely and legally after arm, leg, or posture loss while making clear calls and choosing a useful next action.",
+        drills:["Call and Change Body","One-Arm Survival","Safe Posture Drill","Wounded Decision Scenarios"],
+        cues:["Call first","Body matches call","No unsafe hopping","Choose a wounded job","Take death when safety requires"],
+        standards:["Call wounds clearly","Stop using a wounded limb","Demonstrate safe wounded posture or legal alternative","Explain one useful wounded job","Choose death when safety requires it"],
+        opening:"A wound changes the fight. Meet it with clear calls, safe movement, and useful judgment.",
+        closing:"Meet the new condition with honesty and order. Wounded is not useless. Wounded is different.",
+        application:"Run reduced-position scenarios with accessible alternatives; reward clear calls, safe posture, useful field choices, and clean deaths."
+      },
+      {
+        code:"F214", title:"The First Read", sourceUrl:"https://drive.google.com/file/d/1cQwfBVYB1IQlLBFrXwtfviFImfQWyX_3/view",
+        motto:"Look before the fight speaks.",
+        purpose:"Make a useful first read from stance, range, guard, handedness, preferred action, and pressure response without overthinking.",
+        drills:["Cold Read Lineup","Hot Read Tap","First Plan","Read Journal Out Loud"],
+        cues:["Handedness first","Clues, not certainty","One read, one plan","Test safely","Change when truth arrives"],
+        standards:["Identify handedness before a fight","Name three cold-read details","Use one safe hot read","Describe one opponent reaction","Make one plan from the read"],
+        opening:"Feet, hands, guard, range, and posture all give information. The first read is the first map, not prophecy.",
+        closing:"Look first. Guess humbly. Test safely. Change when the truth arrives.",
+        application:"Before each slow exchange, make one cold read and one plan; afterward state what happened and update the read."
+      },
+      {
+        code:"F215", title:"Beginner Sparring Lab", sourceUrl:"https://drive.google.com/file/d/13M9uT2SwRn2YsH3_gJ9JnNgFEaTEiJy3/view",
+        motto:"Spar with purpose. Learn from the round.",
+        purpose:"Integrate the F200 skills through safe structured sparring with one goal, controlled intensity, short feedback, and deliberate adjustment.",
+        drills:["Declare the Goal","One-Minute Structured Spar","Feedback and Repeat","Final F200 Integration"],
+        cues:["One goal per round","Control intensity","One success, one correction","Winning is not the only measure","Stop when safety breaks"],
+        standards:["State one sparring goal","Spar safely at controlled intensity","Demonstrate one F200 skill under resistance","Give one useful feedback point","Name one adjustment for the next round"],
+        opening:"Resistance without purpose becomes noise. Spar with one goal, one correction, and one lesson carried forward.",
+        closing:"The round is a mirror. Look honestly, change one thing, and return knowing how to improve tomorrow.",
+        application:"Run one-minute rotations at controlled intensity. Each Cadet declares one goal, receives one success and one correction, then repeats."
       }
     ]
   };

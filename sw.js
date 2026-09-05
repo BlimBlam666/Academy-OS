@@ -1,4 +1,4 @@
-var CACHE_NAME = "academy-os-phase1-v6";
+var CACHE_NAME = "academy-os-phase1-v7";
 var ASSETS = ["./","index.html","styles.css","app.js","manifest.webmanifest","config/practice-schedule.js","config/academy-calendar.js","config/rincon-event.js","assets/crest.svg"];
 self.addEventListener("install", function (event) {
   event.waitUntil(caches.open(CACHE_NAME).then(function (cache) { return cache.addAll(ASSETS); }));
