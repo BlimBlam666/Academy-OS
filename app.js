@@ -9,8 +9,12 @@
   var practiceSessions = buildPracticeSessions();
   var rinconForgeSessions = buildRinconForgeSessions();
   var practiceTrack = automaticPracticeTrack();
+  var practiceTrackMode = "auto";
   var activePractice = null;
+  var practiceResolution = null;
   var previewPractice = null;
+  var scheduleTimer = null;
+  var contentEventScheduleOwned = true;
   var calendarMonth = initialCampaignMonth();
   var INTEGRATIONS = [
     {id:"drive",name:"Academy Drive Gateway",group:"Knowledge",description:"The Academy's shared Drive entry point and source network.",url:"https://drive.google.com/drive/folders/1bw6dw3yUQCiJUqgSV7lUnwkm0rTHIe6o"},
@@ -138,17 +142,64 @@
     return new Date(parts[0], parts[1] - 1, parts[2], 19, 0, 0);
   }
 
+  function schedulingTimeZone() {
+    var timeZone = PRACTICE_CONFIG.timezone || "America/Phoenix";
+    try {
+      new Intl.DateTimeFormat("en-US", {timeZone:timeZone}).format(new Date(0));
+    } catch (error) {
+      throw new RangeError("Invalid practice scheduling timezone: " + timeZone);
+    }
+    return timeZone;
+  }
+
+  function practiceRolloverHour() {
+    if (PRACTICE_CONFIG.rolloverHour === undefined) return 21;
+    var hour = Number(PRACTICE_CONFIG.rolloverHour);
+    if (!Number.isInteger(hour) || hour < 0 || hour > 23) {
+      throw new RangeError("Practice rolloverHour must be an integer from 0 through 23.");
+    }
+    return hour;
+  }
+
+  function zonedParts(instant, timeZone) {
+    var values = {};
+    new Intl.DateTimeFormat("en-US-u-ca-gregory-nu-latn", {
+      timeZone:timeZone || schedulingTimeZone(), hourCycle:"h23",
+      calendar:"gregory", numberingSystem:"latn",
+      year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit"
+    }).formatToParts(instant).forEach(function (part) {
+      if (part.type !== "literal") values[part.type] = Number(part.value);
+    });
+    values.date = values.year + "-" + String(values.month).padStart(2, "0") + "-" + String(values.day).padStart(2, "0");
+    return values;
+  }
+
+  function zonedDateTime(value, hour, timeZone) {
+    var parts = String(value || "").split("-").map(Number);
+    var desired = Date.UTC(parts[0], parts[1] - 1, parts[2], hour || 0, 0, 0, 0);
+    var guess = desired;
+    for (var attempt = 0; attempt < 3; attempt += 1) {
+      var observed = zonedParts(new Date(guess), timeZone);
+      var observedValue = Date.UTC(observed.year, observed.month - 1, observed.day, observed.hour, observed.minute, observed.second, 0);
+      guess += desired - observedValue;
+    }
+    return new Date(guess);
+  }
+
+  function addPracticeDays(value, days) {
+    var parts = String(value || "").split("-").map(Number);
+    var date = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] + days));
+    return date.getUTCFullYear() + "-" + String(date.getUTCMonth() + 1).padStart(2, "0") + "-" + String(date.getUTCDate()).padStart(2, "0");
+  }
+
   function practiceDateISO(date) {
     return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
   }
 
   function buildPracticeSessions() {
     if (!PRACTICE_CONFIG.courses || !PRACTICE_CONFIG.courses.length) return [];
-    var start = parsePracticeDate(PRACTICE_CONFIG.startDate);
     return PRACTICE_CONFIG.courses.map(function (course, index) {
-      var date = new Date(start.getTime());
-      date.setDate(start.getDate() + index * (PRACTICE_CONFIG.cadenceDays || 7));
-      return Object.assign({}, course, {date:practiceDateISO(date)});
+      return Object.assign({}, course, {date:addPracticeDays(PRACTICE_CONFIG.startDate, index * (PRACTICE_CONFIG.cadenceDays || 7))});
     });
   }
 
@@ -156,32 +207,56 @@
     return (RINCON_CONFIG.forgeSessions || []).map(function (session) { return Object.assign({}, session); });
   }
 
-  function automaticPracticeTrack() {
+  function automaticPracticeTrack(instant) {
     if (!RINCON_CONFIG.endDate) return "academy";
-    var close = campaignDate(RINCON_CONFIG.endDate);
-    close.setHours(23, 59, 59, 999);
-    return new Date() <= close ? "rincon" : "academy";
+    var close = zonedDateTime(addPracticeDays(RINCON_CONFIG.endDate, 1), 0, schedulingTimeZone());
+    return (instant || new Date()) < close ? "rincon" : "academy";
   }
 
   function activeForgeSessions() {
     return practiceTrack === "rincon" ? rinconForgeSessions : practiceSessions;
   }
 
-  function scheduledPractice(sessions) {
-    sessions = sessions || practiceSessions;
-    if (!sessions.length) return null;
-    var now = new Date();
-    var today = practiceDateISO(now);
-    var todaySession = sessions.find(function (session) { return session.date === today; });
-    var rolloverHour = PRACTICE_CONFIG.rolloverHour === undefined ? 21 : PRACTICE_CONFIG.rolloverHour;
-    if (todaySession && now.getHours() >= rolloverHour) {
-      return sessions.find(function (session) { return session.date > today; }) || todaySession;
+  function resolvePracticeSchedule(sessions, options) {
+    options = options || {};
+    sessions = sessions || [];
+    if (!sessions.length) return {phase:"complete", session:null, nextSession:null, nextTransitionAt:null};
+    var now = options.instant || new Date();
+    var local = zonedParts(now, options.timeZone || schedulingTimeZone());
+    var today = local.date;
+    var rolloverHour = practiceRolloverHour();
+    if (Number.isInteger(options.rolloverHour) && options.rolloverHour >= 0 && options.rolloverHour <= 23) rolloverHour = options.rolloverHour;
+    var session = sessions.find(function (item) {
+      return item.date > today || (item.date === today && local.hour < rolloverHour);
+    });
+    if (!session) {
+      if (options.afterEnd === "reference") {
+        return {phase:"reference", session:sessions[sessions.length - 1], nextSession:null, nextTransitionAt:null};
+      }
+      return {phase:"complete", session:null, nextSession:null, nextTransitionAt:null};
     }
-    return sessions.find(function (session) { return session.date >= today; }) || sessions[sessions.length - 1];
+    var index = sessions.indexOf(session);
+    return {
+      phase:"scheduled", session:session, nextSession:index + 1 < sessions.length ? sessions[index + 1] : null,
+      nextTransitionAt:zonedDateTime(session.date, rolloverHour, options.timeZone || schedulingTimeZone())
+    };
+  }
+
+  function resolvePracticeTrack(track, instant) {
+    return resolvePracticeSchedule(track === "rincon" ? rinconForgeSessions : practiceSessions, {
+      instant:instant, afterEnd:track === "rincon" ? "reference" : "complete"
+    });
+  }
+
+  function scheduledPractice(sessions) {
+    if (sessions) return resolvePracticeSchedule(sessions, {afterEnd:sessions === rinconForgeSessions ? "reference" : "complete"}).session;
+    return resolvePracticeTrack("academy").session;
   }
 
   function formatPracticeDate(value, includeYear) {
-    return parsePracticeDate(value).toLocaleDateString([], {
+    return zonedDateTime(value, 12, schedulingTimeZone()).toLocaleDateString("en-US-u-ca-gregory-nu-latn", {
+      timeZone:schedulingTimeZone(),
+      calendar:"gregory", numberingSystem:"latn",
       weekday:"long", month:"long", day:"numeric", year:includeYear ? "numeric" : undefined
     });
   }
@@ -190,6 +265,11 @@
     sessions = sessions || practiceSessions;
     var index = sessions.indexOf(session);
     return index >= 0 && index + 1 < sessions.length ? sessions[index + 1] : null;
+  }
+
+  function practiceDateOrdinal(value) {
+    var parts = String(value || "").split("-").map(Number);
+    return Math.floor(Date.UTC(parts[0], parts[1] - 1, parts[2]) / 86400000);
   }
 
   function campaignMonthDate(value) {
@@ -336,36 +416,42 @@
 
   function renderPractice() {
     var sessions = activeForgeSessions();
-    activePractice = scheduledPractice(sessions);
-    if (!activePractice) return;
+    practiceResolution = resolvePracticeTrack(practiceTrack);
+    activePractice = practiceResolution.phase === "scheduled" ? practiceResolution.session : null;
+    var referencePractice = practiceResolution.session || sessions[sessions.length - 1];
+    if (!referencePractice) return;
+    if (previewPractice === activePractice) previewPractice = null;
 
-    var displayPractice = previewPractice || activePractice;
-    var isPreview = displayPractice !== activePractice;
+    var displayPractice = previewPractice || referencePractice;
+    var isPreview = Boolean(previewPractice);
+    var isComplete = practiceResolution.phase === "complete";
+    var isReference = practiceResolution.phase === "reference";
     var courseIndex = sessions.indexOf(displayPractice);
     var next = nextPracticeAfter(displayPractice, sessions);
     var trackName = practiceTrack === "rincon" ? "RinCon rehearsal" : "Academy course";
     var timeLabel = displayPractice.timeLabel || PRACTICE_CONFIG.timeLabel;
     var previewDays = PRACTICE_CONFIG.previewDays || 7;
-    var activeDate = parsePracticeDate(activePractice.date);
-    var reviewDate = new Date(activeDate.getTime());
-    reviewDate.setDate(reviewDate.getDate() - previewDays);
+    var reviewDate = addPracticeDays(referencePractice.date, -previewDays);
     var now = new Date();
-    var dayDistance = Math.ceil((activeDate.getTime() - now.getTime()) / 86400000);
+    var today = zonedParts(now, schedulingTimeZone()).date;
+    var dayDistance = practiceDateOrdinal(referencePractice.date) - practiceDateOrdinal(today);
 
     document.querySelectorAll("[data-practice-track]").forEach(function (button) {
       var selected = button.dataset.practiceTrack === practiceTrack;
       button.classList.toggle("active", selected);
       button.setAttribute("aria-pressed", String(selected));
     });
-    document.getElementById("practice-label").textContent = "Practice Forge · " + (isPreview ? "Preview · " : "") + trackName + " " + (courseIndex + 1) + " of " + sessions.length;
-    document.getElementById("practice-title").textContent = displayPractice.code + " · " + displayPractice.title;
+    document.getElementById("practice-label").textContent = "Practice Forge · " + (isPreview ? "Preview · " : "") + (isComplete ? "Academy rotation complete" : (isReference ? "RinCon reference" : trackName + " " + (courseIndex + 1) + " of " + sessions.length));
+    document.getElementById("practice-title").textContent = isComplete && !isPreview ? "Academy rotation complete · F215 concluded" : displayPractice.code + " · " + displayPractice.title;
     document.getElementById("practice-motto").textContent = displayPractice.motto;
     document.getElementById("practice-purpose").textContent = displayPractice.purpose;
     document.getElementById("practice-course-link").href = displayPractice.sourceUrl;
     document.getElementById("practice-course-link").textContent = (practiceTrack === "rincon" ? "Open Rehearsal Agenda · " : "Open Official Course · ") + displayPractice.code + " ↗";
     var previewNotice = document.getElementById("practice-preview-notice");
-    previewNotice.hidden = !isPreview;
-    previewNotice.textContent = isPreview ? "Previewing " + displayPractice.code + ". The scheduled operational course remains " + activePractice.code + " · " + activePractice.title + "." : "";
+    previewNotice.hidden = !(isPreview || isComplete || isReference);
+    previewNotice.textContent = isPreview
+      ? "Previewing " + displayPractice.code + ". " + (activePractice ? "The scheduled operational course remains " + activePractice.code + " · " + activePractice.title + "." : "There is no scheduled operational course; this rotation is complete.")
+      : (isComplete ? "The Academy rotation is complete. F215 concluded the planned F100/F200 semester; all courses remain available as references." : "The RinCon rehearsal rotation is complete. RC-FULL remains available as a reference, and the October 1 loadout gate follows.");
     document.getElementById("practice-return-scheduled").hidden = !isPreview;
     document.getElementById("practice-meta").innerHTML =
       "<span>" + escapeHtml(formatPracticeDate(displayPractice.date, true)) + "</span>" +
@@ -374,7 +460,13 @@
       "<span>" + escapeHtml(practiceTrack === "rincon" ? "Convention preparation" : "Wednesday curriculum") + "</span>";
 
     var reviewStatus = document.getElementById("practice-review-status");
-    if (activePractice.date === practiceDateISO(now)) {
+    if (isComplete) {
+      reviewStatus.textContent = "Rotation complete";
+      reviewStatus.className = "status-pill";
+    } else if (isReference) {
+      reviewStatus.textContent = "Reference session";
+      reviewStatus.className = "status-pill";
+    } else if (activePractice.date === today) {
       reviewStatus.textContent = "Runs today";
       reviewStatus.className = "status-pill review-open";
     } else if (dayDistance >= 0 && dayDistance <= previewDays) {
@@ -390,11 +482,14 @@
     document.getElementById("practice-track-window").textContent = practiceTrack === "rincon"
       ? "Four rehearsals · September 9–30 · RinCon October 2–4"
       : "Twenty-two Wednesday courses · January 6–June 2";
-    document.getElementById("practice-automation-note").textContent = dayDistance > previewDays
-      ? "Review window opens " + formatPracticeDate(practiceDateISO(reviewDate), false) + ". You can still open the full agenda now."
-      : (practiceTrack === "academy"
-        ? "This lesson is inside its seven-day review window. After Wednesday practice, the Forge advances automatically."
-        : "This rehearsal is inside its seven-day review window. The next rehearsal advances automatically after Wednesday night.");
+    document.getElementById("practice-automation-note").textContent = isComplete
+      ? "No Academy course is currently scheduled. The completed rotation remains available for reference."
+      : (isReference ? "These completed convention rehearsals remain available for reference."
+        : (dayDistance > previewDays
+          ? "Review window opens " + formatPracticeDate(reviewDate, false) + ". You can still open the full agenda now."
+          : (practiceTrack === "academy"
+            ? "This lesson is inside its seven-day review window. After Wednesday practice, the Forge advances automatically."
+            : "This rehearsal is inside its seven-day review window. The next rehearsal advances automatically after Wednesday night.")));
 
     var firstDrills = displayPractice.drills.slice(0, 2).join(" and ");
     var laterDrills = displayPractice.drills.slice(2).join(", ") || "repeat the primary drill with one correction";
@@ -424,7 +519,7 @@
     document.getElementById("practice-closing").textContent = "“" + displayPractice.closing + "”";
     document.getElementById("practice-rotation-title").textContent = practiceTrack === "rincon" ? "September teaching rehearsals" : "January–June Wednesdays";
     document.getElementById("practice-rotation").innerHTML = sessions.map(function (session) {
-      var current = session === activePractice ? " scheduled" : "";
+      var current = practiceResolution.phase === "scheduled" && session === activePractice ? " scheduled" : "";
       var shown = session === displayPractice ? " active" : "";
       return '<div class="rotation-item' + current + shown + '"><button type="button" data-practice-preview="' + escapeHtml(session.code) +
         '" aria-label="Preview ' + escapeHtml(session.code + " " + session.title) + '"><b>' + escapeHtml(session.code) + "</b><span>" +
@@ -436,11 +531,7 @@
       ? '<a href="' + escapeHtml(next.sourceUrl) + '" target="_blank" rel="noopener"><b>' + escapeHtml(next.code + " · " + next.title) + '</b><span>' + escapeHtml(formatPracticeDate(next.date, true)) + '</span><small>Opens automatically after the current Wednesday · view now ↗</small></a>'
       : '<b>End of this loaded track</b><span>' + (practiceTrack === "rincon" ? "The October 1 loadout gate follows these rehearsals." : "F215 closes the planned F100/F200 semester on June 2.") + '</span>';
 
-    var operationalPractice = scheduledPractice();
-    var contentEvent = document.getElementById("content-event");
-    if (contentEvent && (!contentEvent.value || contentEvent.value === "Academy Fighters Practice" || contentEvent.value.indexOf("F201") === 0)) {
-      contentEvent.value = operationalPractice ? operationalPractice.code + " · " + operationalPractice.title : "Academy Fighters Practice";
-    }
+    updateScheduledContentEvent();
     bindPracticeChecks();
     document.querySelectorAll("[data-practice-preview]").forEach(function (button) {
       button.addEventListener("click", function () {
@@ -463,8 +554,10 @@
   document.querySelectorAll("[data-practice-track]").forEach(function (button) {
     button.addEventListener("click", function () {
       practiceTrack = button.dataset.practiceTrack;
+      practiceTrackMode = "manual";
       previewPractice = null;
       renderPractice();
+      armScheduleTimer();
       toast(practiceTrack === "rincon" ? "RinCon rehearsal track opened." : "Academy Wednesday curriculum opened.");
     });
   });
@@ -477,14 +570,58 @@
     if (previousPreview) previousPreview.focus();
   });
 
+  function scheduleKey(resolution) {
+    return practiceTrack + ":" + resolution.phase + ":" + (resolution.session ? resolution.session.code : "none");
+  }
+
+  function updateScheduledContentEvent() {
+    var operationalPractice = resolvePracticeTrack("academy").session;
+    var contentEvent = document.getElementById("content-event");
+    if (contentEvent && (contentEventScheduleOwned || !contentEvent.value || contentEvent.value === "Academy Fighters Practice")) {
+      contentEvent.value = operationalPractice ? operationalPractice.code + " · " + operationalPractice.title : "Academy rotation complete";
+      contentEventScheduleOwned = true;
+    }
+  }
+
+  function refreshScheduling() {
+    var previousKey = practiceResolution ? scheduleKey(practiceResolution) : "";
+    if (practiceTrackMode === "auto") practiceTrack = automaticPracticeTrack();
+    var current = resolvePracticeTrack(practiceTrack);
+    if (scheduleKey(current) !== previousKey) renderPractice();
+    else updateScheduledContentEvent();
+    updateClock();
+    armScheduleTimer();
+  }
+
+  function armScheduleTimer() {
+    window.clearTimeout(scheduleTimer);
+    var resolution = resolvePracticeTrack(practiceTrack);
+    var transition = resolution.nextTransitionAt;
+    var academyTransition = resolvePracticeTrack("academy").nextTransitionAt;
+    if (academyTransition && (!transition || academyTransition < transition)) transition = academyTransition;
+    if (practiceTrackMode === "auto" && RINCON_CONFIG.endDate) {
+      var autoTransition = zonedDateTime(addPracticeDays(RINCON_CONFIG.endDate, 1), 0, schedulingTimeZone());
+      if (autoTransition > new Date() && (!transition || autoTransition < transition)) transition = autoTransition;
+    }
+    if (!transition) return;
+    var delay = Math.max(0, transition.getTime() - Date.now());
+    scheduleTimer = window.setTimeout(refreshScheduling, Math.min(delay, 2147483647));
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) refreshScheduling();
+  });
+  window.addEventListener("pageshow", refreshScheduling);
+
   function updateClock() {
     var now = new Date();
-    document.getElementById("clock").textContent = now.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-    document.getElementById("today").textContent = now.toLocaleDateString([], {weekday:"long",month:"long",day:"numeric",year:"numeric"});
-    var session = scheduledPractice();
+    document.getElementById("clock").textContent = now.toLocaleTimeString([], {timeZone:schedulingTimeZone(),hour:"2-digit",minute:"2-digit"});
+    document.getElementById("today").textContent = now.toLocaleDateString([], {timeZone:schedulingTimeZone(),weekday:"long",month:"long",day:"numeric",year:"numeric"}) + " · Phoenix";
+    var academyResolution = resolvePracticeTrack("academy");
+    var session = academyResolution.session;
     var countdown = document.getElementById("countdown");
-    var rinconOpen = RINCON_CONFIG.startDate ? campaignDate(RINCON_CONFIG.startDate) : null;
-    var rinconClose = RINCON_CONFIG.endDate ? new Date(campaignDate(RINCON_CONFIG.endDate).getTime() + 43200000) : null;
+    var rinconOpen = RINCON_CONFIG.startDate ? zonedDateTime(RINCON_CONFIG.startDate, 0, schedulingTimeZone()) : null;
+    var rinconClose = RINCON_CONFIG.endDate ? zonedDateTime(addPracticeDays(RINCON_CONFIG.endDate, 1), 0, schedulingTimeZone()) : null;
     if (rinconOpen && now < rinconClose) {
       var rinconDistance = rinconOpen.getTime() - now.getTime();
       document.getElementById("next-event-label").textContent = rinconDistance > 0 ? "Next field operation" : "Field operation underway";
@@ -499,13 +636,16 @@
       return;
     }
     if (!session) {
-      countdown.textContent = "No practice course is scheduled";
+      document.getElementById("next-event-label").textContent = "Academy rotation";
+      document.getElementById("next-event-course").textContent = "Rotation complete";
+      document.getElementById("next-event-date").textContent = "F215 concluded the planned F100/F200 semester";
+      countdown.textContent = "No Academy course is currently scheduled";
       return;
     }
 
-    var practiceDate = parsePracticeDate(session.date);
+    var practiceDate = zonedDateTime(session.date, 19, schedulingTimeZone());
     var distance = practiceDate.getTime() - now.getTime();
-    var today = practiceDateISO(now);
+    var today = zonedParts(now, schedulingTimeZone()).date;
     document.getElementById("next-event-label").textContent = session.date === today ? "Today's practice" : "Next practice";
     document.getElementById("next-event-course").textContent = session.code + " · " + session.title;
     document.getElementById("next-event-date").textContent = formatPracticeDate(session.date, true) + " · " + PRACTICE_CONFIG.timeLabel;
@@ -521,7 +661,7 @@
     }
   }
   updateClock();
-  window.setInterval(updateClock, 30000);
+  window.setInterval(refreshScheduling, 30000);
 
   function renderRinCon() {
     if (!RINCON_CONFIG.title) return;
@@ -681,11 +821,15 @@
   }
   updatePracticeProgress();
 
+  document.getElementById("content-event").addEventListener("input", function () {
+    contentEventScheduleOwned = false;
+  });
+
   function aarValues() {
     var operationalPractice = scheduledPractice();
     return {
-      event:operationalPractice ? operationalPractice.code + " · " + operationalPractice.title : "Academy Fighters Practice",
-      date:new Date().toLocaleString(),
+      event:operationalPractice ? operationalPractice.code + " · " + operationalPractice.title : "Academy rotation complete",
+      date:new Date().toLocaleString([], {timeZone:schedulingTimeZone()}) + " Phoenix",
       happened:document.getElementById("aar-happened").value.trim(),
       worked:document.getElementById("aar-worked").value.trim(),
       improve:document.getElementById("aar-improve").value.trim(),
@@ -706,6 +850,7 @@
   document.getElementById("send-to-foundry").addEventListener("click", function () {
     var entry = aarValues();
     document.getElementById("content-event").value = entry.event;
+    contentEventScheduleOwned = true;
     document.getElementById("content-moment").value = entry.story || entry.happened;
     document.getElementById("content-lesson").value = entry.worked || entry.improve;
     showView("content");
@@ -913,6 +1058,7 @@
   }
 
   initializeRenders();
+  armScheduleTimer();
 
   if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
     navigator.serviceWorker.register("sw.js").catch(function (error) {

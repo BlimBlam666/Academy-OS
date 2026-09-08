@@ -1,0 +1,32 @@
+{
+  "name": "academy-os",
+  "version": "1.0.0",
+  "description": "A portable command layer for running the Academy of Mercenary Arts: operations, training, knowledge, content production, and the links that hold the organization together.",
+  "main": "app.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:browser": "playwright test",
+    "test:browser:headed": "playwright test --headed",
+    "test:browser:ui": "playwright test --ui",
+    "test:browser:report": "playwright show-report"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BlimBlam666/Academy-OS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/BlimBlam666/Academy-OS/issues"
+  },
+  "homepage": "https://github.com/BlimBlam666/Academy-OS#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

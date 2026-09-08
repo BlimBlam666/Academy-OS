@@ -94,9 +94,9 @@ for (const match of app.matchAll(/getElementById\("([^"]+)"\)/g)) {
   if (!html.includes(`id="${match[1]}"`)) throw new Error(`Application references missing DOM id: ${match[1]}`);
 }
 if (!app.includes("var previewPractice = null")) throw new Error("Practice preview is not transient");
-if (!app.includes("var displayPractice = previewPractice || activePractice")) throw new Error("Practice preview is not separated from the scheduled course");
+if (!app.includes("var displayPractice = previewPractice || referencePractice")) throw new Error("Practice preview is not separated from the scheduled course");
 if (!app.includes("var operationalPractice = scheduledPractice()")) throw new Error("AAR attribution is not tied to the scheduled course");
-if (!app.includes('var session = scheduledPractice();')) throw new Error("Countdown no longer uses the scheduled course");
+if (!app.includes('var academyResolution = resolvePracticeTrack("academy");')) throw new Error("Countdown no longer uses the Academy schedule resolution");
 
 const manifest = JSON.parse(readFileSync("manifest.webmanifest", "utf8"));
 if (!manifest.name || !manifest.start_url) throw new Error("PWA manifest is incomplete");
