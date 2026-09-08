@@ -37,7 +37,7 @@ for (const file of requiredFiles) {
 }
 
 const html = readFileSync("index.html", "utf8");
-for (const marker of ["view-hall", "view-practice", "view-rincon", "view-calendar", "view-content", "view-integrations", "practice-rotation", "practice-course-link", "practice-review-status", "data-practice-track", "campaign-calendar-grid", "rincon-programs", "rincon-readiness", "rincon-content-shots"]) {
+for (const marker of ["view-hall", "view-practice", "view-rincon", "view-calendar", "view-content", "view-integrations", "practice-rotation", "practice-course-link", "practice-review-status", "data-practice-track", "practice-return-scheduled", "practice-preview-notice", "campaign-calendar-grid", "rincon-programs", "rincon-readiness", "rincon-content-shots"]) {
   if (!html.toLowerCase().includes(marker)) throw new Error(`Missing interface marker: ${marker}`);
 }
 
@@ -93,6 +93,10 @@ new vm.Script(app, { filename: "app.js" });
 for (const match of app.matchAll(/getElementById\("([^"]+)"\)/g)) {
   if (!html.includes(`id="${match[1]}"`)) throw new Error(`Application references missing DOM id: ${match[1]}`);
 }
+if (!app.includes("var previewPractice = null")) throw new Error("Practice preview is not transient");
+if (!app.includes("var displayPractice = previewPractice || activePractice")) throw new Error("Practice preview is not separated from the scheduled course");
+if (!app.includes("var operationalPractice = scheduledPractice()")) throw new Error("AAR attribution is not tied to the scheduled course");
+if (!app.includes('var session = scheduledPractice();')) throw new Error("Countdown no longer uses the scheduled course");
 
 const manifest = JSON.parse(readFileSync("manifest.webmanifest", "utf8"));
 if (!manifest.name || !manifest.start_url) throw new Error("PWA manifest is incomplete");

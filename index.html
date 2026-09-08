@@ -116,7 +116,10 @@
           <h2 id="practice-title">Preparing the next Academy course…</h2>
           <p id="practice-motto"></p>
         </div>
-        <a id="practice-course-link" class="primary-button link-button" href="#" target="_blank" rel="noopener">Open Current Course ↗</a>
+        <div class="practice-actions">
+          <a id="practice-course-link" class="primary-button link-button" href="#" target="_blank" rel="noopener">Open Scheduled Course ↗</a>
+          <button id="practice-return-scheduled" class="quiet-button" type="button" hidden>Return to scheduled course</button>
+        </div>
       </div>
 
       <article class="panel forge-controls" aria-label="Practice Forge track controls">
@@ -137,6 +140,7 @@
       <div class="practice-layout">
         <article class="panel runbook">
           <div id="practice-meta" class="runbook-meta"></div>
+          <p id="practice-preview-notice" class="practice-preview-notice" role="status" hidden></p>
           <p id="practice-purpose" class="subtle"></p>
           <h3>Field Runbook</h3>
           <p class="subtle">The dated rotation selects this course automatically. Check each stage as it is completed; progress is stored separately for every course.</p>

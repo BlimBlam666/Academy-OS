@@ -10,6 +10,7 @@
   var rinconForgeSessions = buildRinconForgeSessions();
   var practiceTrack = automaticPracticeTrack();
   var activePractice = null;
+  var previewPractice = null;
   var calendarMonth = initialCampaignMonth();
   var INTEGRATIONS = [
     {id:"drive",name:"Academy Drive Gateway",group:"Knowledge",description:"The Academy's shared Drive entry point and source network.",url:"https://drive.google.com/drive/folders/1bw6dw3yUQCiJUqgSV7lUnwkm0rTHIe6o"},
@@ -338,10 +339,12 @@
     activePractice = scheduledPractice(sessions);
     if (!activePractice) return;
 
-    var courseIndex = sessions.indexOf(activePractice);
-    var next = nextPracticeAfter(activePractice, sessions);
+    var displayPractice = previewPractice || activePractice;
+    var isPreview = displayPractice !== activePractice;
+    var courseIndex = sessions.indexOf(displayPractice);
+    var next = nextPracticeAfter(displayPractice, sessions);
     var trackName = practiceTrack === "rincon" ? "RinCon rehearsal" : "Academy course";
-    var timeLabel = activePractice.timeLabel || PRACTICE_CONFIG.timeLabel;
+    var timeLabel = displayPractice.timeLabel || PRACTICE_CONFIG.timeLabel;
     var previewDays = PRACTICE_CONFIG.previewDays || 7;
     var activeDate = parsePracticeDate(activePractice.date);
     var reviewDate = new Date(activeDate.getTime());
@@ -354,16 +357,20 @@
       button.classList.toggle("active", selected);
       button.setAttribute("aria-pressed", String(selected));
     });
-    document.getElementById("practice-label").textContent = "Practice Forge · " + trackName + " " + (courseIndex + 1) + " of " + sessions.length;
-    document.getElementById("practice-title").textContent = activePractice.code + " · " + activePractice.title;
-    document.getElementById("practice-motto").textContent = activePractice.motto;
-    document.getElementById("practice-purpose").textContent = activePractice.purpose;
-    document.getElementById("practice-course-link").href = activePractice.sourceUrl;
-    document.getElementById("practice-course-link").textContent = (practiceTrack === "rincon" ? "Open Rehearsal Agenda · " : "Open Current Course · ") + activePractice.code + " ↗";
+    document.getElementById("practice-label").textContent = "Practice Forge · " + (isPreview ? "Preview · " : "") + trackName + " " + (courseIndex + 1) + " of " + sessions.length;
+    document.getElementById("practice-title").textContent = displayPractice.code + " · " + displayPractice.title;
+    document.getElementById("practice-motto").textContent = displayPractice.motto;
+    document.getElementById("practice-purpose").textContent = displayPractice.purpose;
+    document.getElementById("practice-course-link").href = displayPractice.sourceUrl;
+    document.getElementById("practice-course-link").textContent = (practiceTrack === "rincon" ? "Open Rehearsal Agenda · " : "Open Official Course · ") + displayPractice.code + " ↗";
+    var previewNotice = document.getElementById("practice-preview-notice");
+    previewNotice.hidden = !isPreview;
+    previewNotice.textContent = isPreview ? "Previewing " + displayPractice.code + ". The scheduled operational course remains " + activePractice.code + " · " + activePractice.title + "." : "";
+    document.getElementById("practice-return-scheduled").hidden = !isPreview;
     document.getElementById("practice-meta").innerHTML =
-      "<span>" + escapeHtml(formatPracticeDate(activePractice.date, true)) + "</span>" +
+      "<span>" + escapeHtml(formatPracticeDate(displayPractice.date, true)) + "</span>" +
       "<span>" + escapeHtml(timeLabel) + "</span>" +
-      "<span>" + escapeHtml(activePractice.code) + "</span>" +
+      "<span>" + escapeHtml(displayPractice.code) + "</span>" +
       "<span>" + escapeHtml(practiceTrack === "rincon" ? "Convention preparation" : "Wednesday curriculum") + "</span>";
 
     var reviewStatus = document.getElementById("practice-review-status");
@@ -389,57 +396,85 @@
         ? "This lesson is inside its seven-day review window. After Wednesday practice, the Forge advances automatically."
         : "This rehearsal is inside its seven-day review window. The next rehearsal advances automatically after Wednesday night.");
 
-    var firstDrills = activePractice.drills.slice(0, 2).join(" and ");
-    var laterDrills = activePractice.drills.slice(2).join(", ") || "repeat the primary drill with one correction";
-    var phases = activePractice.phases || [
+    var firstDrills = displayPractice.drills.slice(0, 2).join(" and ");
+    var laterDrills = displayPractice.drills.slice(2).join(", ") || "repeat the primary drill with one correction";
+    var phases = displayPractice.phases || [
       {id:"prep", title:"6:45 · Preparation — " + PRACTICE_CONFIG.prepMinutes + " minutes", description:"Inspect the field, stage equipment, open the source course, and confirm consent and safety needs."},
-      {id:"muster", title:"7:00 · Muster and warm-up — 20 minutes", description:"Welcome fighters, check readiness, review prior fundamentals, and state today's purpose: " + activePractice.purpose},
-      {id:"lesson", title:"7:20 · Source lesson — 30 minutes", description:"Teach directly from " + activePractice.code + ". Establish the core concept, then run " + firstDrills + "."},
+      {id:"muster", title:"7:00 · Muster and warm-up — 20 minutes", description:"Welcome fighters, check readiness, review prior fundamentals, and state today's purpose: " + displayPractice.purpose},
+      {id:"lesson", title:"7:20 · Source lesson — 30 minutes", description:"Teach directly from " + displayPractice.code + ". Establish the core concept, then run " + firstDrills + "."},
       {id:"drill", title:"7:50 · Guided drilling — 30 minutes", description:"Continue with " + laterDrills + ". Give one correction at a time and repeat until the behavior becomes clearer."},
-      {id:"pressure", title:"8:20 · Field application — 30 minutes", description:activePractice.application},
+      {id:"pressure", title:"8:20 · Field application — 30 minutes", description:displayPractice.application},
       {id:"close", title:"8:50 · Passing standard and close — 10 minutes", description:"Observe the listed completion standards, name one success and one next improvement, then read the closing script."},
       {id:"aar", title:"9:00 · Post-practice closeout — " + PRACTICE_CONFIG.closeoutMinutes + " minutes", description:"Account for equipment, record attendance privately, complete the AAR, preserve approved media, and prepare the next course."}
     ];
 
     document.getElementById("practice-timeline").innerHTML = phases.map(function (phase) {
-      var key = practiceTrack + "-" + activePractice.code.toLowerCase() + "-" + phase.id;
+      var key = practiceTrack + "-" + displayPractice.code.toLowerCase() + "-" + phase.id;
       return '<li><label><input type="checkbox" data-practice-check="' + key + '"> <span><b>' +
         escapeHtml(phase.title) + "</b>" + escapeHtml(phase.description) + "</span></label></li>";
     }).join("");
 
-    document.getElementById("practice-standards").innerHTML = activePractice.standards.map(function (standard) {
+    document.getElementById("practice-standards").innerHTML = displayPractice.standards.map(function (standard) {
       return "<li>" + escapeHtml(standard) + "</li>";
     }).join("");
-    document.getElementById("practice-cues").innerHTML = activePractice.cues.map(function (cue) {
+    document.getElementById("practice-cues").innerHTML = displayPractice.cues.map(function (cue) {
       return "<span>" + escapeHtml(cue) + "</span>";
     }).join("");
-    document.getElementById("practice-opening").textContent = "“" + activePractice.opening + "”";
-    document.getElementById("practice-closing").textContent = "“" + activePractice.closing + "”";
+    document.getElementById("practice-opening").textContent = "“" + displayPractice.opening + "”";
+    document.getElementById("practice-closing").textContent = "“" + displayPractice.closing + "”";
     document.getElementById("practice-rotation-title").textContent = practiceTrack === "rincon" ? "September teaching rehearsals" : "January–June Wednesdays";
     document.getElementById("practice-rotation").innerHTML = sessions.map(function (session) {
-      var current = session.code === activePractice.code && session.date === activePractice.date ? " active" : "";
-      return '<a class="rotation-item' + current + '" href="' + escapeHtml(session.sourceUrl) +
-        '" target="_blank" rel="noopener"><b>' + escapeHtml(session.code) + "</b><span>" +
-        escapeHtml(formatPracticeDate(session.date, false)) + "</span><small>" +
-        escapeHtml(session.title) + "</small></a>";
+      var current = session === activePractice ? " scheduled" : "";
+      var shown = session === displayPractice ? " active" : "";
+      return '<div class="rotation-item' + current + shown + '"><button type="button" data-practice-preview="' + escapeHtml(session.code) +
+        '" aria-label="Preview ' + escapeHtml(session.code + " " + session.title) + '"><b>' + escapeHtml(session.code) + "</b><span>" +
+        escapeHtml(formatPracticeDate(session.date, false)) + "</span><small>" + escapeHtml(session.title) +
+        '</small><em>Preview in Forge</em></button><a href="' + escapeHtml(session.sourceUrl) + '" target="_blank" rel="noopener" aria-label="Open official ' +
+        escapeHtml(session.code) + ' source document">Official doc ↗</a></div>';
     }).join("");
     document.getElementById("next-practice").innerHTML = next
       ? '<a href="' + escapeHtml(next.sourceUrl) + '" target="_blank" rel="noopener"><b>' + escapeHtml(next.code + " · " + next.title) + '</b><span>' + escapeHtml(formatPracticeDate(next.date, true)) + '</span><small>Opens automatically after the current Wednesday · view now ↗</small></a>'
       : '<b>End of this loaded track</b><span>' + (practiceTrack === "rincon" ? "The October 1 loadout gate follows these rehearsals." : "F215 closes the planned F100/F200 semester on June 2.") + '</span>';
 
+    var operationalPractice = scheduledPractice();
     var contentEvent = document.getElementById("content-event");
     if (contentEvent && (!contentEvent.value || contentEvent.value === "Academy Fighters Practice" || contentEvent.value.indexOf("F201") === 0)) {
-      contentEvent.value = activePractice.code + " · " + activePractice.title;
+      contentEvent.value = operationalPractice ? operationalPractice.code + " · " + operationalPractice.title : "Academy Fighters Practice";
     }
+    bindPracticeChecks();
+    document.querySelectorAll("[data-practice-preview]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var selected = sessions.find(function (session) { return session.code === button.dataset.practicePreview; });
+        if (!selected) return;
+        if (selected === activePractice) {
+          previewPractice = null;
+          renderPractice();
+          var scheduledButton = document.querySelector('[data-practice-preview="' + selected.code + '"]');
+          if (scheduledButton) scheduledButton.focus();
+          return;
+        }
+        previewPractice = selected;
+        renderPractice();
+        document.getElementById("practice-return-scheduled").focus();
+      });
+    });
   }
 
   document.querySelectorAll("[data-practice-track]").forEach(function (button) {
     button.addEventListener("click", function () {
       practiceTrack = button.dataset.practiceTrack;
+      previewPractice = null;
       renderPractice();
-      bindPracticeChecks();
       toast(practiceTrack === "rincon" ? "RinCon rehearsal track opened." : "Academy Wednesday curriculum opened.");
     });
+  });
+
+  document.getElementById("practice-return-scheduled").addEventListener("click", function () {
+    var previewCode = previewPractice ? previewPractice.code : "";
+    previewPractice = null;
+    renderPractice();
+    var previousPreview = document.querySelector('[data-practice-preview="' + previewCode + '"]');
+    if (previousPreview) previousPreview.focus();
   });
 
   function updateClock() {
@@ -647,8 +682,9 @@
   updatePracticeProgress();
 
   function aarValues() {
+    var operationalPractice = scheduledPractice();
     return {
-      event:activePractice ? activePractice.code + " · " + activePractice.title : "Academy Fighters Practice",
+      event:operationalPractice ? operationalPractice.code + " · " + operationalPractice.title : "Academy Fighters Practice",
       date:new Date().toLocaleString(),
       happened:document.getElementById("aar-happened").value.trim(),
       worked:document.getElementById("aar-worked").value.trim(),
@@ -864,10 +900,10 @@
   });
 
   function initializeRenders() {
+    previewPractice = null;
     renderPractice();
     renderRinCon();
     renderCampaignCalendar();
-    bindPracticeChecks();
     renderQuickLinks();
     renderQuests();
     renderChronicle();

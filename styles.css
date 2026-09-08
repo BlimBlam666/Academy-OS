@@ -223,11 +223,18 @@ footer{max-width:1500px;margin:auto;padding:24px 34px 35px;border-top:1px solid 
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
 .rotation-list{display:grid;gap:.55rem;margin-top:.8rem;max-height:35rem;overflow:auto;padding-right:.25rem;scrollbar-color:var(--thistle) transparent}
-.rotation-item{display:grid;grid-template-columns:auto 1fr;gap:.15rem .65rem;padding:.65rem .75rem;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025);color:var(--text);text-decoration:none}
-.rotation-item span{color:var(--gold);text-align:right}
-.rotation-item small{grid-column:1/-1;color:var(--muted)}
-.rotation-item:hover,.rotation-item:focus-visible{border-color:var(--gold);background:rgba(198,155,75,.08)}
+.practice-actions{display:flex;flex-wrap:wrap;gap:9px;justify-content:flex-end}
+.practice-preview-notice{padding:10px 12px;border-left:3px solid var(--thistle);background:rgba(126,90,142,.15);color:var(--parchment)}
+.rotation-item{display:grid;grid-template-columns:1fr auto;align-items:center;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025);color:var(--text);overflow:hidden}
+.rotation-item button{display:grid;grid-template-columns:auto 1fr;gap:.15rem .65rem;padding:.65rem .75rem;border:0;background:transparent;color:inherit;text-align:left}
+.rotation-item button span{color:var(--gold);text-align:right}
+.rotation-item button small,.rotation-item button em{grid-column:1/-1;color:var(--muted)}
+.rotation-item button em{color:var(--brass-light);font-size:.68rem;font-style:normal}
+.rotation-item>a{align-self:stretch;display:grid;place-items:center;padding:.5rem .65rem;border-left:1px solid var(--line);color:var(--muted);font-size:.7rem;text-decoration:none}
+.rotation-item:hover,.rotation-item:focus-within{border-color:var(--gold);background:rgba(198,155,75,.08)}
+.rotation-item button:focus-visible,.rotation-item>a:focus-visible{outline:2px solid var(--brass-light);outline-offset:-3px}
 .rotation-item.active{border-color:var(--gold);box-shadow:inset 3px 0 0 var(--gold)}
+.rotation-item.scheduled button b:after{content:" · Scheduled";color:var(--moss);font-size:.65rem}
 .next-course-card>a,.next-course-card{display:grid;gap:.35rem;color:var(--text);text-decoration:none}
 .next-course-card>a{padding:.8rem;border:1px solid var(--line);border-radius:10px;background:rgba(198,155,75,.05)}
 .next-course-card>a:hover,.next-course-card>a:focus-visible{border-color:var(--gold);background:rgba(198,155,75,.1)}

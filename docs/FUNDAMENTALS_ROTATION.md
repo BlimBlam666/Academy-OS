@@ -42,6 +42,7 @@ The Command Hall derives each date from a January 6, 2027 start date and a seven
 - At 9:00 PM on Wednesday, it advances to the following course automatically so the next agenda is available for the coming week.
 - The Command Hall countdown, current course link, objectives, drills, coaching cues, passing standards, scripts, AAR title, and following-course preview update together.
 - Checklist completion is namespaced by course, so finishing F104 does not pre-complete F105.
+- A preceptor may preview any rotation course inside the full Forge runbook and then return to the scheduled course. Previewing is temporary: it does not change the dated rotation, countdown, calendar, AAR attribution, Content Foundry attribution, or persisted application state.
 
 ## RinCon rehearsal track
 
