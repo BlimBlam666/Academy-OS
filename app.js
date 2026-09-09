@@ -344,6 +344,150 @@
     });
   }
 
+  // Phase 1 operational selectors. These are intentionally independent of the
+  // current Hall rendering so the future Command Station can consume one
+  // derived view without creating another schedule or mutating source data.
+  var PRECEPTOR_STATES = ["Brief Ready", "Running Externally", "Review Needed", "Accepted"];
+
+  function commandStationEvents() {
+    var sourceOrder = 0;
+    var events = campaignEvents().map(function (item) {
+      var kind = item.type === "practice" ? "practice" :
+        (item.id.indexOf("milestone-") === 0 ? "milestone" :
+          (item.id.indexOf("park-") === 0 ? "sunday" : "other"));
+      return Object.assign({}, item, {kind:kind, sourceOrder:sourceOrder++});
+    });
+    (RINCON_CONFIG.forgeSessions || []).forEach(function (session) {
+      events.push(Object.assign({}, session, {
+        id:"rincon-practice-" + session.code,
+        type:"practice",
+        kind:"practice",
+        title:session.code + " · " + session.title,
+        time:session.timeLabel,
+        sourceOrder:sourceOrder++
+      }));
+    });
+    (RINCON_CONFIG.days || []).forEach(function (day) {
+      var existing = events.find(function (item) {
+        return item.kind === "milestone" && item.date === day.date;
+      });
+      if (existing) existing.rinconDay = clone(day);
+    });
+    return events.sort(function (a, b) {
+      return a.date.localeCompare(b.date) || a.sourceOrder - b.sourceOrder;
+    });
+  }
+
+  function commandEventPriority(item, today, localHour, rolloverHour) {
+    var activePractice = item.kind === "practice" && item.date === today && localHour < rolloverHour;
+    if (activePractice) return 0;
+    if (item.kind === "milestone") return 1;
+    if (item.kind === "practice") return 2;
+    if (item.kind === "sunday") return 3;
+    return 4;
+  }
+
+  function operationalDay(item, local, rolloverHour) {
+    if (item.kind === "practice" && item.date === local.date && local.hour >= rolloverHour) return "past";
+    if (item.date < local.date) return "past";
+    if (item.date === local.date) return "today";
+    return "future";
+  }
+
+  function mondayForDate(value) {
+    var parts = value.split("-").map(Number);
+    var date = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+    var offset = (date.getUTCDay() + 6) % 7;
+    date.setUTCDate(date.getUTCDate() - offset);
+    return date.toISOString().slice(0, 10);
+  }
+
+  function selectNowNext(options) {
+    options = options || {};
+    var local = zonedParts(options.instant || new Date(), schedulingTimeZone());
+    var rolloverHour = practiceRolloverHour();
+    var available = (options.events || commandStationEvents()).filter(function (item) {
+      return item && item.date && item.completed !== true && operationalDay(item, local, rolloverHour) !== "past";
+    });
+    available.sort(function (a, b) {
+      return a.date.localeCompare(b.date) ||
+        commandEventPriority(a, local.date, local.hour, rolloverHour) - commandEventPriority(b, local.date, local.hour, rolloverHour) ||
+        (a.sourceOrder || 0) - (b.sourceOrder || 0);
+    });
+    if (!available.length) return {now:null, next:null, nowTies:[], nextTies:[]};
+    var firstDate = available[0].date;
+    var firstDay = available.filter(function (item) { return item.date === firstDate; });
+    var now = firstDay[0];
+    var remaining = firstDay.slice(1);
+    var next = remaining[0] || available.find(function (item) { return item.date > firstDate; }) || null;
+    return {
+      now:now,
+      next:next,
+      nowTies:firstDay.slice(1),
+      nextTies:next ? available.filter(function (item) {
+        return item !== now && item !== next && item.date === next.date;
+      }) : []
+    };
+  }
+
+  function selectThisWeek(options) {
+    options = options || {};
+    var local = zonedParts(options.instant || new Date(), schedulingTimeZone());
+    var start = mondayForDate(local.date);
+    var end = addPracticeDays(start, 7);
+    var rolloverHour = practiceRolloverHour();
+    var events = (options.events || commandStationEvents()).filter(function (item) {
+      return item && item.date >= start && item.date < end;
+    });
+    return {
+      startDate:start,
+      endDateExclusive:end,
+      events:events,
+      actionable:events.filter(function (item) {
+        return item.completed !== true && operationalDay(item, local, rolloverHour) !== "past";
+      })
+    };
+  }
+
+  function selectSunday(options) {
+    options = options || {};
+    var local = zonedParts(options.instant || new Date(), schedulingTimeZone());
+    return (CAMPAIGN_CONFIG.sundays || []).find(function (item) { return item.date >= local.date; }) || null;
+  }
+
+  function selectAttention(input) {
+    input = input || {};
+    var quests = input.quests === undefined ? state.quests : input.quests;
+    var contentQueue = input.contentQueue === undefined ? state.contentQueue : input.contentQueue;
+    return {
+      quests:(quests || []).filter(function (quest) { return !quest.done; }).slice(0, 5),
+      content:(contentQueue || []).filter(function (item) {
+        return item.stage === "Captured" || item.stage === "Drafted";
+      })
+    };
+  }
+
+  function normalizePreceptorBrief(brief) {
+    brief = brief || {};
+    return {
+      title:String(brief.title || "Manual Preceptor brief"),
+      state:PRECEPTOR_STATES.indexOf(brief.state) >= 0 ? brief.state : PRECEPTOR_STATES[0],
+      note:String(brief.note || "")
+    };
+  }
+
+  window.ACADEMY_COMMAND_STATION = Object.freeze({
+    timezone:schedulingTimeZone(),
+    weekStartsOn:"Monday",
+    preceptorStates:PRECEPTOR_STATES.slice(),
+    events:commandStationEvents,
+    nowNext:selectNowNext,
+    thisWeek:selectThisWeek,
+    sunday:selectSunday,
+    attention:selectAttention,
+    preceptorBrief:normalizePreceptorBrief
+  });
+
   function bindCalendarEventButtons() {
     document.querySelectorAll("[data-campaign-event]").forEach(function (button) {
       button.addEventListener("click", function () { openCampaignEvent(button.dataset.campaignEvent); });
