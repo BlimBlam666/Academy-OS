@@ -3,6 +3,7 @@
 
   var STORAGE_KEY = "academyOS.phase1.v1";
   var STAGES = ["Captured", "Drafted", "Reviewed", "Scheduled", "Published"];
+  var PRECEPTOR_STATES = ["Not Set", "Brief Ready", "Running Externally", "Review Needed", "Accepted"];
   var PRACTICE_CONFIG = window.ACADEMY_PRACTICE_SCHEDULE || {courses:[]};
   var CAMPAIGN_CONFIG = window.ACADEMY_CAMPAIGN_CALENDAR || {sundays:[]};
   var RINCON_CONFIG = window.ACADEMY_RINCON_EVENT || {programs:[],resources:[],readiness:[],contentShots:[],days:[],forgeSessions:[]};
@@ -70,7 +71,8 @@
     integrations:{},
     contentQueue:[],
     drafts:{facebook:"",instagram:"",youtube:"",patreon:""},
-    activeDraft:"facebook"
+    activeDraft:"facebook",
+    preceptorBrief:{status:"Not Set",title:"",note:"",updatedAt:""}
   };
 
   var state = loadState();
@@ -79,16 +81,10 @@
     return JSON.parse(JSON.stringify(value));
   }
 
-  function loadState() {
+  function hydrateState(saved) {
     var base = clone(defaultState);
-    try {
-      var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-      Object.keys(base).forEach(function (key) {
-        if (saved[key] !== undefined) base[key] = saved[key];
-      });
-    } catch (error) {
-      console.warn("Academy OS could not read saved state.", error);
-    }
+    saved = saved && typeof saved === "object" ? saved : {};
+    Object.keys(base).forEach(function (key) { if (saved[key] !== undefined) base[key] = saved[key]; });
     base.quests = (base.quests || []).map(function (quest) {
       if (quest.id === "q-pilot") quest.text = "Prepare the January 6 F104 fundamentals practice";
       return quest;
@@ -98,7 +94,13 @@
     }
     base.rinconChecks = base.rinconChecks || {};
     base.rinconShots = base.rinconShots || {};
+    base.preceptorBrief = normalizePreceptorBrief(base.preceptorBrief);
     return base;
+  }
+
+  function loadState() {
+    try { return hydrateState(JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}")); }
+    catch (error) { console.warn("Academy OS could not read saved state.", error); return hydrateState({}); }
   }
 
   function saveState() {
@@ -347,7 +349,6 @@
   // Phase 1 operational selectors. These are intentionally independent of the
   // current Hall rendering so the future Command Station can consume one
   // derived view without creating another schedule or mutating source data.
-  var PRECEPTOR_STATES = ["Brief Ready", "Running Externally", "Review Needed", "Accepted"];
 
   function commandStationEvents() {
     var sourceOrder = 0;
@@ -469,10 +470,12 @@
 
   function normalizePreceptorBrief(brief) {
     brief = brief || {};
+    var updatedAt = typeof brief.updatedAt === "string" && !Number.isNaN(Date.parse(brief.updatedAt)) ? brief.updatedAt : "";
     return {
-      title:String(brief.title || "Manual Preceptor brief"),
-      state:PRECEPTOR_STATES.indexOf(brief.state) >= 0 ? brief.state : PRECEPTOR_STATES[0],
-      note:String(brief.note || "")
+      status:PRECEPTOR_STATES.indexOf(brief.status || brief.state) >= 0 ? (brief.status || brief.state) : "Not Set",
+      title:String(brief.title || ""),
+      note:String(brief.note || ""),
+      updatedAt:updatedAt
     };
   }
 
@@ -794,10 +797,50 @@
     document.getElementById("rincon-attention").innerHTML = rinconRelevant
       ? '<article class="attention-callout"><div><p class="eyebrow">Contextual readiness</p><b>RinCon work is in the operational window</b></div><button class="quiet-button" type="button" data-command-go="rincon">Open Mission Control</button></article>'
       : "";
-    document.getElementById("preceptor-title").textContent = "Preceptor brief";
-    document.getElementById("preceptor-state").textContent = "Manual · Not set";
-    document.getElementById("preceptor-note").textContent = "No manual brief has been entered. This is not live agent telemetry.";
+    renderPreceptorBrief();
   }
+
+  function phoenixTimestamp(value) {
+    return new Intl.DateTimeFormat("en-US", {timeZone:"America/Phoenix",year:"numeric",month:"short",day:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"}).format(new Date(value));
+  }
+
+  function renderPreceptorBrief() {
+    var brief = state.preceptorBrief;
+    var isSet = brief.status !== "Not Set" || brief.title || brief.note;
+    document.getElementById("preceptor-title").textContent = brief.title || "Preceptor brief";
+    document.getElementById("preceptor-state").textContent = "Manual · " + brief.status;
+    document.getElementById("preceptor-note").textContent = brief.note || "No manual brief has been entered. Codex is not connected; this is not live agent telemetry.";
+    var updated = document.getElementById("preceptor-updated");
+    updated.hidden = !brief.updatedAt;
+    updated.textContent = brief.updatedAt ? "Manually updated " + phoenixTimestamp(brief.updatedAt) + " · America/Phoenix" : "";
+    document.getElementById("copy-preceptor").hidden = !isSet;
+    document.getElementById("reset-preceptor").hidden = !isSet;
+  }
+
+  var preceptorDialog = document.getElementById("preceptor-dialog");
+  function closePreceptorEditor() { preceptorDialog.close(); }
+  document.getElementById("edit-preceptor").addEventListener("click", function () {
+    document.getElementById("preceptor-status").value = state.preceptorBrief.status;
+    document.getElementById("preceptor-mission-title").value = state.preceptorBrief.title;
+    document.getElementById("preceptor-operator-note").value = state.preceptorBrief.note;
+    preceptorDialog.showModal();
+    document.getElementById("preceptor-status").focus();
+  });
+  document.getElementById("preceptor-close").addEventListener("click", closePreceptorEditor);
+  document.getElementById("cancel-preceptor").addEventListener("click", closePreceptorEditor);
+  document.getElementById("preceptor-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+    state.preceptorBrief = normalizePreceptorBrief({status:document.getElementById("preceptor-status").value,title:document.getElementById("preceptor-mission-title").value.trim(),note:document.getElementById("preceptor-operator-note").value.trim(),updatedAt:new Date().toISOString()});
+    saveState(); renderPreceptorBrief(); closePreceptorEditor(); toast("Manual Preceptor brief saved locally.");
+  });
+  document.getElementById("reset-preceptor").addEventListener("click", function () {
+    state.preceptorBrief = normalizePreceptorBrief({}); saveState(); renderPreceptorBrief(); toast("Manual Preceptor brief reset.");
+  });
+  document.getElementById("copy-preceptor").addEventListener("click", function () {
+    var brief = state.preceptorBrief;
+    var text = "Manual Preceptor mission brief\nStatus: " + brief.status + "\nMission: " + (brief.title || "Not set") + "\nOperator note: " + (brief.note || "None") + (brief.updatedAt ? "\nUpdated: " + phoenixTimestamp(brief.updatedAt) + " (America/Phoenix)" : "") + "\nCodex is not connected.";
+    navigator.clipboard.writeText(text).then(function () { toast("Manual mission brief copied."); }).catch(function () { toast("Copy was not available."); });
+  });
 
   function renderCommandHall(instant) {
     var selection = window.ACADEMY_COMMAND_STATION.nowNext({instant:instant});
@@ -1192,7 +1235,7 @@
       try {
         var parsed = JSON.parse(reader.result);
         if (!parsed.state || typeof parsed.state !== "object") throw new Error("Missing state");
-        state = Object.assign(clone(defaultState), parsed.state);
+        state = hydrateState(parsed.state);
         saveState(); initializeRenders(); toast("Local Academy OS data restored.");
       } catch (error) {
         toast("That file is not a valid Academy OS backup.");

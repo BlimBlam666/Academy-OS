@@ -69,9 +69,15 @@
               <div id="content-attention"></div>
               <div id="rincon-attention"></div>
               <article class="preceptor-brief" aria-labelledby="preceptor-title">
-                <div><p class="eyebrow">Manual Preceptor state</p><h3 id="preceptor-title">Preceptor brief</h3></div>
+                <div><p class="eyebrow">Manual Preceptor brief</p><h3 id="preceptor-title">Preceptor brief</h3></div>
                 <span id="preceptor-state" class="manual-state">Manual · Not set</span>
                 <p id="preceptor-note">No manual brief has been entered. This is not live agent telemetry.</p>
+                <p id="preceptor-updated" class="preceptor-updated" hidden></p>
+                <div class="button-row preceptor-actions">
+                  <button id="edit-preceptor" class="quiet-button" type="button">Edit brief</button>
+                  <button id="copy-preceptor" class="quiet-button" type="button" hidden>Copy mission brief</button>
+                  <button id="reset-preceptor" class="quiet-button" type="button" hidden>Clear / reset</button>
+                </div>
               </article>
             </div>
             <div class="tools-column">
@@ -333,6 +339,19 @@
     <div id="calendar-dialog-meta" class="runbook-meta"></div>
     <p id="calendar-dialog-purpose" class="calendar-dialog-purpose"></p>
     <div id="calendar-dialog-actions" class="button-row"></div>
+  </dialog>
+
+  <dialog id="preceptor-dialog" aria-labelledby="preceptor-dialog-title">
+    <form id="preceptor-form">
+      <div class="dialog-heading"><div><p class="eyebrow">Manual Preceptor brief</p><h2 id="preceptor-dialog-title">Edit mission brief</h2></div><button id="preceptor-close" class="icon-button" type="button" aria-label="Close">×</button></div>
+      <p class="subtle">A locally recorded operator note only. Codex is not connected and no execution status is inferred.</p>
+      <div class="preceptor-fields">
+        <label><span>Manual status</span><select id="preceptor-status"><option>Not Set</option><option>Brief Ready</option><option>Running Externally</option><option>Review Needed</option><option>Accepted</option></select></label>
+        <label><span>Mission title</span><input id="preceptor-mission-title" maxlength="120" autocomplete="off"></label>
+        <label><span>Short operator note</span><textarea id="preceptor-operator-note" maxlength="300" rows="3"></textarea></label>
+      </div>
+      <div class="button-row"><button class="primary-button" type="submit">Save</button><button id="cancel-preceptor" class="quiet-button" type="button">Cancel</button></div>
+    </form>
   </dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>

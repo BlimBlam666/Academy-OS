@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { readFile } = require("node:fs/promises");
 
 async function station(page, iso = "2026-09-08T12:00:00-07:00") {
   await page.clock.install({ time: new Date(iso) });
@@ -18,12 +19,12 @@ async function nowNext(page, iso, events) {
 test("contract is Phoenix-authoritative and contains no telemetry states", async ({ page }) => {
   const contract = await station(page);
   expect(contract.timezone).toBe("America/Phoenix");
-  expect(contract.states).toEqual(["Brief Ready", "Running Externally", "Review Needed", "Accepted"]);
+  expect(contract.states).toEqual(["Not Set", "Brief Ready", "Running Externally", "Review Needed", "Accepted"]);
   expect(contract.states.join(" ")).not.toMatch(/online|progress|percent|eta|active agent/i);
   const brief = await page.evaluate(() => window.ACADEMY_COMMAND_STATION.preceptorBrief({
     title: "Review launch brief", state: "Working 73%", eta: "2m",
   }));
-  expect(brief).toEqual({ title: "Review launch brief", state: "Brief Ready", note: "" });
+  expect(brief).toEqual({ title: "Review launch brief", status: "Not Set", note: "", updatedAt: "" });
   await expect(page.getByRole("heading", { name: "Command Hall", level: 1 })).toBeVisible();
 });
 
@@ -184,11 +185,116 @@ test("published content does not create Hall attention", async ({ page }) => {
 test("Preceptor status is explicitly manual and disclaims live telemetry", async ({ page }) => {
   await station(page);
   const brief = page.locator(".preceptor-brief");
-  await expect(brief.getByText("Manual Preceptor state")).toBeVisible();
-  await expect(brief.locator(".manual-state")).toHaveText("Manual · Not set");
+  await expect(brief.getByText("Manual Preceptor brief")).toBeVisible();
+  await expect(brief.locator(".manual-state")).toHaveText("Manual · Not Set");
   await expect(brief).toContainText("No manual brief has been entered");
   await expect(brief).toContainText("not live agent telemetry");
   await expect(brief).not.toContainText(/\d+%|ETA|online/i);
+});
+
+test("manual Preceptor brief edits, saves, persists across reload, and records Phoenix time", async ({ page }) => {
+  await station(page);
+  await page.getByRole("button", { name:"Edit brief" }).click();
+  const dialog = page.getByRole("dialog", { name:"Edit mission brief" });
+  await expect(dialog).toContainText("Codex is not connected");
+  await dialog.getByLabel("Manual status").selectOption("Review Needed");
+  await dialog.getByLabel("Mission title").fill("Review the field plan");
+  await dialog.getByLabel("Short operator note").fill("Check the Sunday handoff.");
+  await dialog.getByRole("button", { name:"Save" }).click();
+  const brief = page.locator(".preceptor-brief");
+  await expect(brief.locator(".manual-state")).toHaveText("Manual · Review Needed");
+  await expect(brief).toContainText("Review the field plan");
+  await expect(brief).toContainText("Check the Sunday handoff.");
+  await expect(brief.locator("#preceptor-updated")).toContainText(/Sep 8, 2026.*12:00 PM MST.*America\/Phoenix/);
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("academyOS.phase1.v1")).preceptorBrief);
+  expect(saved).toMatchObject({status:"Review Needed",title:"Review the field plan",note:"Check the Sunday handoff."});
+  expect(saved.updatedAt).toMatch(/^2026-09-08T19:00:\d{2}\.\d{3}Z$/);
+  await page.reload();
+  await expect(brief.locator(".manual-state")).toHaveText("Manual · Review Needed");
+  await expect(brief).toContainText("Review the field plan");
+});
+
+test("manual Preceptor cancel leaves saved brief unchanged and reset restores Not Set", async ({ page }) => {
+  await station(page);
+  await page.getByRole("button", { name:"Edit brief" }).click();
+  await page.getByLabel("Mission title").fill("Discard me");
+  await page.getByRole("button", { name:"Cancel", exact:true }).click();
+  await expect(page.locator(".preceptor-brief")).not.toContainText("Discard me");
+  await page.getByRole("button", { name:"Edit brief" }).click();
+  await page.getByLabel("Manual status").selectOption("Brief Ready");
+  await page.getByLabel("Mission title").fill("Keep briefly");
+  await page.getByRole("button", { name:"Save" }).click();
+  await page.getByRole("button", { name:"Clear / reset" }).click();
+  await expect(page.locator(".preceptor-brief .manual-state")).toHaveText("Manual · Not Set");
+  await expect(page.getByRole("button", { name:"Clear / reset" })).toBeHidden();
+});
+
+test("all permitted manual Preceptor statuses can be saved", async ({ page }) => {
+  await station(page);
+  for (const status of ["Not Set", "Brief Ready", "Running Externally", "Review Needed", "Accepted"]) {
+    await page.getByRole("button", { name:"Edit brief" }).click();
+    await page.getByLabel("Manual status").selectOption(status);
+    await page.getByRole("button", { name:"Save" }).click();
+    await expect(page.locator(".preceptor-brief .manual-state")).toHaveText(`Manual · ${status}`);
+  }
+});
+
+test("legacy local state hydrates the default manual Preceptor brief", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("academyOS.phase1.v1", JSON.stringify({quests:[]})));
+  await page.goto("/");
+  await expect(page.locator(".preceptor-brief .manual-state")).toHaveText("Manual · Not Set");
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("academyOS.phase1.v1")).quests)).toEqual([]);
+});
+
+test("malformed legacy Preceptor timestamps are ignored safely", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("academyOS.phase1.v1", JSON.stringify({
+    preceptorBrief:{status:"Brief Ready",title:"Legacy mission",note:"Still manual.",updatedAt:"not-a-date"},
+  })));
+  await page.goto("/");
+  await expect(page.locator(".preceptor-brief .manual-state")).toHaveText("Manual · Brief Ready");
+  await expect(page.locator("#preceptor-updated")).toBeHidden();
+  await expect(page.locator(".preceptor-brief")).toContainText("Legacy mission");
+});
+
+test("import restores a manual Preceptor brief through shared hydration", async ({ page }) => {
+  await station(page);
+  await page.getByRole("button", { name:"Gatehouse" }).click();
+  await page.locator("#import-data").setInputFiles({name:"backup.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify({version:1,state:{quests:[],preceptorBrief:{status:"Accepted",title:"Imported mission",note:"Operator approved.",updatedAt:"2026-09-08T19:00:00.000Z"}}}))});
+  await page.getByRole("button", { name:"Command Hall" }).click();
+  await expect(page.locator(".preceptor-brief .manual-state")).toHaveText("Manual · Accepted");
+  await expect(page.locator(".preceptor-brief")).toContainText("Imported mission");
+});
+
+test("export includes the locally persisted manual Preceptor brief", async ({ page }) => {
+  await station(page);
+  await page.getByRole("button", { name:"Edit brief" }).click();
+  await page.getByLabel("Manual status").selectOption("Brief Ready");
+  await page.getByLabel("Mission title").fill("Exported mission");
+  await page.getByRole("button", { name:"Save" }).click();
+  await page.getByRole("button", { name:"Gatehouse" }).click();
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name:"Export local data" }).click();
+  const download = await downloadPromise;
+  const exported = JSON.parse(await readFile(await download.path(), "utf8"));
+  expect(exported.state.preceptorBrief.title).toBe("Exported mission");
+  expect(exported.state.preceptorBrief.status).toBe("Brief Ready");
+});
+
+test("Preceptor editor is keyboard operable and copy text remains explicitly manual", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await station(page);
+  await page.getByRole("button", { name:"Edit brief" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByLabel("Manual status")).toBeFocused();
+  await page.getByLabel("Mission title").fill("Keyboard mission");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name:"Edit mission brief" })).toBeHidden();
+  await page.getByRole("button", { name:"Edit brief" }).click();
+  await page.getByLabel("Mission title").fill("Keyboard mission");
+  await page.getByRole("button", { name:"Save" }).click();
+  await page.getByRole("button", { name:"Copy mission brief" }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain("Manual Preceptor mission brief");
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain("Codex is not connected");
 });
 
 test("Tools contains exactly the five stable destinations", async ({ page }) => {
