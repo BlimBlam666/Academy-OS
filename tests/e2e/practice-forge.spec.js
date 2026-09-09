@@ -21,7 +21,7 @@ test.beforeEach(async ({ page }, testInfo) => {
 });
 
 async function openForge(page) {
-  await page.getByRole("button", { name: "Practice Forge" }).click();
+  await page.getByRole("button", { name: "Practice Forge", exact: true }).click();
   await expect(page.locator("#view-practice")).toHaveClass(/active/);
   await expect(page.locator("#practice-title")).toContainText(SCHEDULED_CODE);
 }
@@ -32,7 +32,7 @@ function previewButton(page, code = PREVIEW_CODE) {
 
 test("Academy Command Hall loads without browser console errors", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Command Hall", level: 1 })).toBeVisible();
-  await expect(page.getByText("One place to command the Academy.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Now / Next", level: 2 })).toBeVisible();
   await expect.poll(() => browserErrors.get(page)).toEqual([]);
 });
 
@@ -113,10 +113,9 @@ test("AAR attribution remains tied to scheduled practice during preview", async 
   await page.locator("#aar-improve").fill("More repetitions");
   await page.locator("#aar-next").fill("Repeat the drill");
   await page.getByRole("button", { name: "Seal Chronicle Entry" }).click();
-  await page.getByRole("button", { name: "Command Hall" }).click();
-  const entry = page.locator("#chronicle-list .chronicle-entry").first();
-  await expect(entry).toContainText(SCHEDULED_CODE);
-  await expect(entry).not.toContainText(PREVIEW_CODE);
+  const entry = await page.evaluate(() => JSON.parse(localStorage.getItem("academyOS.phase1.v1")).aars.at(-1));
+  expect(entry.event).toContain(SCHEDULED_CODE);
+  expect(entry.event).not.toContain(PREVIEW_CODE);
 });
 
 test("Content Foundry attribution remains tied to scheduled practice during preview", async ({ page }) => {
@@ -134,9 +133,9 @@ test("Send to Foundry restores schedule ownership for the next rollover", async 
   await page.clock.pauseAt(new Date("2027-01-06T20:59:59.999-07:00"));
   await page.reload();
   await openForge(page);
-  await page.getByRole("button", { name: "Content Foundry" }).click();
+  await page.getByRole("button", { name: "Content Foundry", exact: true }).click();
   await page.locator("#content-event").fill("My earlier custom title");
-  await page.getByRole("button", { name: "Practice Forge" }).click();
+  await page.getByRole("button", { name: "Practice Forge", exact: true }).click();
   await page.getByRole("button", { name: "Send to Foundry" }).click();
   await expect(page.locator("#content-event")).toHaveValue(/^F104 ·/);
 
@@ -144,15 +143,13 @@ test("Send to Foundry restores schedule ownership for the next rollover", async 
   await expect(page.locator("#content-event")).toHaveValue(/^F105 ·/);
 });
 
-test("countdown remains independent of preview", async ({ page }) => {
-  const before = await page.locator("#countdown").innerText();
-  await expect(page.locator("#next-event-course")).toContainText(SCHEDULED_CODE);
+test("Command Hall operation remains independent of preview", async ({ page }) => {
+  await expect(page.locator("#command-now-item")).toContainText(SCHEDULED_CODE);
   await openForge(page);
   await previewButton(page).click();
-  await page.getByRole("button", { name: "Command Hall" }).click();
-  await expect(page.locator("#countdown")).toHaveText(before);
-  await expect(page.locator("#next-event-course")).toContainText(SCHEDULED_CODE);
-  await expect(page.locator("#next-event-course")).not.toContainText(PREVIEW_CODE);
+  await page.getByRole("button", { name: "Command Hall", exact: true }).click();
+  await expect(page.locator("#command-now-item")).toContainText(SCHEDULED_CODE);
+  await expect(page.locator("#command-now-item")).not.toContainText(PREVIEW_CODE);
 });
 
 test("an open Forge advances exactly at the configured Phoenix rollover", async ({ page }) => {
@@ -164,7 +161,7 @@ test("an open Forge advances exactly at the configured Phoenix rollover", async 
   await page.clock.runFor(1);
   await expect(page.locator("#practice-title")).toContainText("F105");
   await expect(page.locator("#practice-label")).toContainText("Academy course 2 of 22");
-  await expect(page.locator("#next-event-course")).toContainText("F105");
+  await expect(page.locator("#command-now-item")).toContainText("Sunday operation");
   await expect(page.locator("#content-event")).toHaveValue(/^F105 ·/);
   await page.clock.runFor(1);
   await expect(page.locator("#practice-title")).toContainText("F105");
@@ -173,7 +170,7 @@ test("an open Forge advances exactly at the configured Phoenix rollover", async 
 test("the following Wednesday retains F105 until its exact boundary", async ({ page }) => {
   await page.clock.pauseAt(new Date("2027-01-13T20:59:59.999-07:00"));
   await page.reload();
-  await page.getByRole("button", { name: "Practice Forge" }).click();
+  await page.getByRole("button", { name: "Practice Forge", exact: true }).click();
   await expect(page.locator("#practice-title")).toContainText("F105");
   await page.clock.runFor(1);
   await expect(page.locator("#practice-title")).toContainText("F106");
@@ -187,7 +184,7 @@ test("rolloverHour is read from validated schedule configuration", async ({ page
     window.ACADEMY_PRACTICE_SCHEDULE.rolloverHour = 20;
     window.dispatchEvent(new Event("pageshow"));
   });
-  await page.getByRole("button", { name: "Practice Forge" }).click();
+  await page.getByRole("button", { name: "Practice Forge", exact: true }).click();
   await expect(page.locator("#practice-title")).toContainText("F104");
   await page.clock.runFor(1);
   await expect(page.locator("#practice-title")).toContainText("F105");
@@ -210,9 +207,9 @@ test("manual track, focus, checklist, and user Foundry text survive rollover", a
   await page.reload();
   await openForge(page);
   await page.locator("[data-practice-check]").first().check();
-  await page.getByRole("button", { name: "Content Foundry" }).click();
+  await page.getByRole("button", { name: "Content Foundry", exact: true }).click();
   await page.locator("#content-event").fill("My hand-written Foundry title");
-  await page.getByRole("button", { name: "Practice Forge" }).click();
+  await page.getByRole("button", { name: "Practice Forge", exact: true }).click();
   const rincon = page.getByRole("button", { name: "RinCon Rehearsals" });
   await rincon.click();
   await rincon.focus();
@@ -242,7 +239,7 @@ test("preview remains transient when the scheduled course rolls underneath it", 
 test("the final Academy course becomes an explicit completed rotation", async ({ page }) => {
   await page.clock.pauseAt(new Date("2027-06-02T20:59:59.999-07:00"));
   await page.reload();
-  await page.getByRole("button", { name: "Practice Forge" }).click();
+  await page.getByRole("button", { name: "Practice Forge", exact: true }).click();
   await expect(page.locator("#practice-title")).toContainText("F215");
 
   await page.clock.runFor(1);
@@ -250,13 +247,12 @@ test("the final Academy course becomes an explicit completed rotation", async ({
   await expect(page.locator("#practice-review-status")).toHaveText("Rotation complete");
   await expect(page.locator("#practice-preview-notice")).toContainText("all courses remain available as references");
   await expect(page.locator("#practice-rotation .scheduled")).toHaveCount(0);
-  await expect(page.locator("#next-event-course")).toHaveText("Rotation complete");
 });
 
 test("RinCon remains an explicit reference after its final rehearsal", async ({ page }) => {
   await page.clock.pauseAt(new Date("2026-09-30T21:00:00-07:00"));
   await page.reload();
-  await page.getByRole("button", { name: "Practice Forge" }).click();
+  await page.getByRole("button", { name: "Practice Forge", exact: true }).click();
   await expect(page.locator("#practice-label")).toContainText("RinCon reference");
   await expect(page.locator("#practice-title")).toContainText("RC-FULL");
   await expect(page.locator("#practice-preview-notice")).toContainText("rehearsal rotation is complete");
@@ -271,7 +267,7 @@ test("each RinCon Wednesday rolls to the intended next rehearsal", async ({ page
   for (const [date, before, after] of boundaries) {
     await page.clock.pauseAt(new Date(`${date}T20:59:59.999-07:00`));
     await page.reload();
-    await page.getByRole("button", { name: "Practice Forge" }).click();
+    await page.getByRole("button", { name: "Practice Forge", exact: true }).click();
     await expect(page.locator("#practice-title")).toContainText(before);
     await page.clock.runFor(1);
     await expect(page.locator("#practice-title")).toContainText(after);
@@ -281,7 +277,7 @@ test("each RinCon Wednesday rolls to the intended next rehearsal", async ({ page
 test("automatic track changes from RinCon to Academy at the Phoenix event cutoff", async ({ page }) => {
   await page.clock.pauseAt(new Date("2026-10-04T23:59:59.999-07:00"));
   await page.reload();
-  await page.getByRole("button", { name: "Practice Forge" }).click();
+  await page.getByRole("button", { name: "Practice Forge", exact: true }).click();
   await expect(page.getByRole("button", { name: "RinCon Rehearsals" })).toHaveAttribute("aria-pressed", "true");
   await page.clock.runFor(1);
   await expect(page.getByRole("button", { name: "Academy Wednesdays" })).toHaveAttribute("aria-pressed", "true");
@@ -291,15 +287,14 @@ test("automatic track changes from RinCon to Academy at the Phoenix event cutoff
 test("completed Academy attribution is explicit in AAR and Foundry", async ({ page }) => {
   await page.clock.pauseAt(new Date("2027-06-02T21:00:00-07:00"));
   await page.reload();
-  await page.getByRole("button", { name: "Practice Forge" }).click();
+  await page.getByRole("button", { name: "Practice Forge", exact: true }).click();
   await page.locator("#aar-happened").fill("The final course concluded");
   await page.locator("#aar-worked").fill("The rotation closed predictably");
   await page.locator("#aar-improve").fill("Plan the next rotation");
   await page.locator("#aar-next").fill("Publish the closeout");
   await page.getByRole("button", { name: "Seal Chronicle Entry" }).click();
-  await page.getByRole("button", { name: "Command Hall" }).click();
-  await expect(page.locator("#chronicle-list .chronicle-entry").first()).toContainText("Academy rotation complete");
-  await page.getByRole("button", { name: "Practice Forge" }).click();
+  const entry = await page.evaluate(() => JSON.parse(localStorage.getItem("academyOS.phase1.v1")).aars.at(-1));
+  expect(entry.event).toBe("Academy rotation complete");
   await page.getByRole("button", { name: "Send to Foundry" }).click();
   await expect(page.locator("#content-event")).toHaveValue("Academy rotation complete");
 });
@@ -310,7 +305,7 @@ test("Phoenix summer scheduling is authoritative in a browser outside Arizona", 
   await page.clock.install({ time: new Date("2027-06-02T20:58:00-07:00") });
   await page.goto("/");
   await page.clock.pauseAt(new Date("2027-06-02T20:59:59.999-07:00"));
-  await page.getByRole("button", { name: "Practice Forge" }).click();
+  await page.getByRole("button", { name: "Practice Forge", exact: true }).click();
   await expect(page.locator("#practice-title")).toContainText("F215");
   await page.clock.runFor(1);
   await expect(page.locator("#practice-title")).toContainText("Academy rotation complete");

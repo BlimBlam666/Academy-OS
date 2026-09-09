@@ -741,7 +741,8 @@
     window.clearTimeout(scheduleTimer);
     var resolution = resolvePracticeTrack(practiceTrack);
     var transition = resolution.nextTransitionAt;
-    var academyTransition = resolvePracticeTrack("academy").nextTransitionAt;
+    var academyResolution = resolvePracticeTrack("academy");
+    var academyTransition = academyResolution.nextTransitionAt;
     if (academyTransition && (!transition || academyTransition < transition)) transition = academyTransition;
     if (practiceTrackMode === "auto" && RINCON_CONFIG.endDate) {
       var autoTransition = zonedDateTime(addPracticeDays(RINCON_CONFIG.endDate, 1), 0, schedulingTimeZone());
@@ -757,52 +758,75 @@
   });
   window.addEventListener("pageshow", refreshScheduling);
 
+  function commandDate(value) {
+    return campaignDate(value).toLocaleDateString([], {weekday:"long",month:"short",day:"numeric"});
+  }
+
+  function commandType(item) {
+    return {practice:"Wednesday course",sunday:"Sunday operation",milestone:"Milestone / deadline"}[item.kind] || "Academy operation";
+  }
+
+  function commandDestination(item, primary) {
+    var className = primary ? "primary-button" : "quiet-button";
+    if (item.kind === "practice") return '<button class="' + className + '" type="button" data-command-go="practice">Open Practice Forge</button>';
+    if (item.rinconDay || /rincon/i.test(String(item.id) + " " + String(item.title))) return '<button class="' + className + '" type="button" data-command-go="rincon">Open Mission Control</button>';
+    if (item.kind === "sunday") return '<button class="' + className + '" type="button" data-command-go="calendar">Open Campaign Calendar</button>';
+    var url = item.sourceUrl || item.calendarUrl;
+    return url ? '<a class="' + className + ' link-button" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">Open plan ↗</a>' : '<button class="' + className + '" type="button" data-command-go="calendar">Open Campaign Calendar</button>';
+  }
+
+  function bindCommandDestinations(holder) {
+    (holder || document).querySelectorAll("[data-command-go]").forEach(function (button) {
+      button.addEventListener("click", function () { showView(button.dataset.commandGo); });
+    });
+  }
+
+  function renderCommandAttention(selection) {
+    var attention = window.ACADEMY_COMMAND_STATION.attention();
+    var contentHolder = document.getElementById("content-attention");
+    contentHolder.innerHTML = attention.content.length
+      ? '<article class="attention-callout"><div><p class="eyebrow">Content review required</p><b>' + attention.content.length + ' captured or drafted item' + (attention.content.length === 1 ? "" : "s") + '</b></div><button class="quiet-button" type="button" data-command-go="content">Open Content Foundry</button></article>'
+      : "";
+
+    selection = selection || window.ACADEMY_COMMAND_STATION.nowNext();
+    var nearby = [selection.now, selection.next].filter(Boolean);
+    var rinconRelevant = nearby.some(function (item) { return item.rinconDay || /rincon|RC-/i.test(String(item.id) + " " + String(item.title)); });
+    document.getElementById("rincon-attention").innerHTML = rinconRelevant
+      ? '<article class="attention-callout"><div><p class="eyebrow">Contextual readiness</p><b>RinCon work is in the operational window</b></div><button class="quiet-button" type="button" data-command-go="rincon">Open Mission Control</button></article>'
+      : "";
+    document.getElementById("preceptor-title").textContent = "Preceptor brief";
+    document.getElementById("preceptor-state").textContent = "Manual · Not set";
+    document.getElementById("preceptor-note").textContent = "No manual brief has been entered. This is not live agent telemetry.";
+  }
+
+  function renderCommandHall(instant) {
+    var selection = window.ACADEMY_COMMAND_STATION.nowNext({instant:instant});
+    var item = selection.now;
+    var nowHolder = document.getElementById("command-now-item");
+    nowHolder.innerHTML = item
+      ? '<div class="command-item-copy"><span class="item-type">' + escapeHtml(commandType(item)) + '</span><h3>' + escapeHtml(item.title || item.game) + '</h3><p><time datetime="' + escapeHtml(item.date) + '">' + escapeHtml(commandDate(item.date)) + '</time>' + (item.time ? " · " + escapeHtml(item.time) : "") + '</p></div><div class="command-primary-action">' + commandDestination(item, true) + '</div>'
+      : '<div class="command-item-copy"><span class="item-type">Plan clear</span><h3>No upcoming operational item</h3><p>The loaded Academy plan has no remaining dated work.</p></div>';
+
+    var week = window.ACADEMY_COMMAND_STATION.thisWeek({instant:instant});
+    document.getElementById("week-range").textContent = commandDate(week.startDate) + " – " + commandDate(addPracticeDays(week.endDateExclusive, -1));
+    var chosen = [];
+    ["practice", "sunday", "milestone"].forEach(function (kind) {
+      var match = week.events.find(function (event) { return event.kind === kind; });
+      if (match) chosen.push(match);
+    });
+    chosen.sort(function (a, b) { return a.date.localeCompare(b.date) || (a.sourceOrder || 0) - (b.sourceOrder || 0); });
+    document.getElementById("command-week-list").innerHTML = chosen.length ? chosen.map(function (event) {
+      return '<article class="week-row"><div class="week-date"><time datetime="' + escapeHtml(event.date) + '">' + escapeHtml(commandDate(event.date)) + '</time><span>' + escapeHtml(event.time || "Time in plan") + '</span></div><div class="week-copy"><span class="item-type">' + escapeHtml(commandType(event)) + '</span><b>' + escapeHtml(event.title || event.game) + '</b></div><div class="week-action">' + commandDestination(event, false) + '</div></article>';
+    }).join("") : '<p class="empty-state">No Wednesday course, Sunday operation, or milestone is loaded for this week.</p>';
+    renderCommandAttention(selection);
+    bindCommandDestinations(document.getElementById("view-hall"));
+  }
+
   function updateClock() {
     var now = new Date();
     document.getElementById("clock").textContent = now.toLocaleTimeString([], {timeZone:schedulingTimeZone(),hour:"2-digit",minute:"2-digit"});
     document.getElementById("today").textContent = now.toLocaleDateString([], {timeZone:schedulingTimeZone(),weekday:"long",month:"long",day:"numeric",year:"numeric"}) + " · Phoenix";
-    var academyResolution = resolvePracticeTrack("academy");
-    var session = academyResolution.session;
-    var countdown = document.getElementById("countdown");
-    var rinconOpen = RINCON_CONFIG.startDate ? zonedDateTime(RINCON_CONFIG.startDate, 0, schedulingTimeZone()) : null;
-    var rinconClose = RINCON_CONFIG.endDate ? zonedDateTime(addPracticeDays(RINCON_CONFIG.endDate, 1), 0, schedulingTimeZone()) : null;
-    if (rinconOpen && now < rinconClose) {
-      var rinconDistance = rinconOpen.getTime() - now.getTime();
-      document.getElementById("next-event-label").textContent = rinconDistance > 0 ? "Next field operation" : "Field operation underway";
-      document.getElementById("next-event-course").textContent = RINCON_CONFIG.title;
-      document.getElementById("next-event-date").textContent = RINCON_CONFIG.dates + " · " + RINCON_CONFIG.venue;
-      if (rinconDistance <= 0) countdown.textContent = "RinCon is underway · open Mission Control";
-      else {
-        var rinconDays = Math.floor(rinconDistance / 86400000);
-        var rinconHours = Math.floor((rinconDistance % 86400000) / 3600000);
-        countdown.textContent = rinconDays + " days · " + rinconHours + " hours until move-in";
-      }
-      return;
-    }
-    if (!session) {
-      document.getElementById("next-event-label").textContent = "Academy rotation";
-      document.getElementById("next-event-course").textContent = "Rotation complete";
-      document.getElementById("next-event-date").textContent = "F215 concluded the planned F100/F200 semester";
-      countdown.textContent = "No Academy course is currently scheduled";
-      return;
-    }
-
-    var practiceDate = zonedDateTime(session.date, 19, schedulingTimeZone());
-    var distance = practiceDate.getTime() - now.getTime();
-    var today = zonedParts(now, schedulingTimeZone()).date;
-    document.getElementById("next-event-label").textContent = session.date === today ? "Today's practice" : "Next practice";
-    document.getElementById("next-event-course").textContent = session.code + " · " + session.title;
-    document.getElementById("next-event-date").textContent = formatPracticeDate(session.date, true) + " · " + PRACTICE_CONFIG.timeLabel;
-
-    if (distance <= 0 && session.date === today) {
-      countdown.textContent = "Practice is underway or complete";
-    } else if (distance <= 0) {
-      countdown.textContent = "Current rotation complete";
-    } else {
-      var days = Math.floor(distance / 86400000);
-      var hours = Math.floor((distance % 86400000) / 3600000);
-      countdown.textContent = days + " days · " + hours + " hours until muster";
-    }
+    renderCommandHall(now);
   }
   updateClock();
   window.setInterval(refreshScheduling, 30000);
@@ -881,15 +905,17 @@
   }
 
   function renderQuickLinks() {
-    var ids = ["rinconSite","rinconVolunteers","courseLibrary","academyResources","reignHandbook","calendar","fighterCoach","scorer","ork","youtube","github"];
-    var holder = document.getElementById("quick-links");
+    var ids = ["calendar","drive","fighterCoach","scorer","reignHandbook"];
+    var labels = {calendar:"Google Calendar",drive:"Academy Drive Gateway",fighterCoach:"Fighter Coach",scorer:"Tournament Scorer",reignHandbook:"Reign Handbook"};
+    var holder = document.getElementById("command-tools");
+    if (!holder) return;
     holder.innerHTML = ids.map(function (id) {
       var item = INTEGRATIONS.find(function (candidate) { return candidate.id === id; });
       var url = integrationUrl(item);
       if (!url) {
-        return '<button class="quick-link" data-configure-gate="' + item.id + '"><span class="gate-icon">◇</span><b>' + escapeHtml(item.name) + '</b><span>Configure this gate</span></button>';
+        return '<button class="tool-link" data-configure-gate="' + item.id + '"><b>' + escapeHtml(labels[id]) + '</b><span>Configure in Gatehouse</span></button>';
       }
-      return '<a class="quick-link" href="' + escapeHtml(url) + '" target="_blank" rel="noopener"><span class="gate-icon">◆</span><b>' + escapeHtml(item.name) + '</b><span>' + escapeHtml(item.group) + '</span></a>';
+      return '<a class="tool-link" href="' + escapeHtml(url) + '" target="_blank" rel="noopener"><b>' + escapeHtml(labels[id]) + '</b><span>Open destination <span aria-hidden="true">↗</span></span></a>';
     }).join("");
     holder.querySelectorAll("[data-configure-gate]").forEach(function (button) {
       button.addEventListener("click", openSettings);
@@ -900,24 +926,25 @@
     var holder = document.getElementById("quest-list");
     var remaining = state.quests.filter(function (quest) { return !quest.done; }).length;
     document.getElementById("quest-count").textContent = remaining;
-    if (!state.quests.length) {
+    var visibleQuests = window.ACADEMY_COMMAND_STATION.attention({quests:state.quests,contentQueue:[]}).quests;
+    if (!visibleQuests.length) {
       holder.innerHTML = '<p class="empty-state">The ledger is clear.</p>';
       return;
     }
-    holder.innerHTML = state.quests.map(function (quest) {
-      return '<div class="quest-item ' + (quest.done ? "done" : "") + '"><input type="checkbox" data-quest-toggle="' + escapeHtml(quest.id) + '" ' + (quest.done ? "checked" : "") + ' aria-label="Complete quest"><span>' + escapeHtml(quest.text) + '</span><button class="quest-delete" data-quest-delete="' + escapeHtml(quest.id) + '" aria-label="Delete quest">×</button></div>';
+    holder.innerHTML = visibleQuests.map(function (quest) {
+      return '<div class="quest-item"><input type="checkbox" data-quest-toggle="' + escapeHtml(quest.id) + '" aria-label="Complete quest: ' + escapeHtml(quest.text) + '"><span>' + escapeHtml(quest.text) + '</span><button class="quest-delete" data-quest-delete="' + escapeHtml(quest.id) + '" aria-label="Delete quest: ' + escapeHtml(quest.text) + '">×</button></div>';
     }).join("");
     holder.querySelectorAll("[data-quest-toggle]").forEach(function (input) {
       input.addEventListener("change", function () {
         var quest = state.quests.find(function (item) { return item.id === input.dataset.questToggle; });
         if (quest) quest.done = input.checked;
-        saveState(); renderQuests();
+        saveState(); renderQuests(); renderCommandAttention();
       });
     });
     holder.querySelectorAll("[data-quest-delete]").forEach(function (button) {
       button.addEventListener("click", function () {
         state.quests = state.quests.filter(function (item) { return item.id !== button.dataset.questDelete; });
-        saveState(); renderQuests();
+        saveState(); renderQuests(); renderCommandAttention();
       });
     });
   }
@@ -929,21 +956,8 @@
     if (!text) return;
     state.quests.unshift({id:"q-" + Date.now(),text:text,done:false});
     input.value = "";
-    saveState(); renderQuests(); toast("Quest added to the ledger.");
+    saveState(); renderQuests(); renderCommandAttention(); toast("Quest added to the ledger.");
   });
-
-  function renderChronicle() {
-    var holder = document.getElementById("chronicle-list");
-    if (!state.aars.length) {
-      holder.className = "chronicle-list empty-state";
-      holder.textContent = "No entries yet. The first honest record begins the archive.";
-      return;
-    }
-    holder.className = "chronicle-list";
-    holder.innerHTML = state.aars.slice().reverse().slice(0,5).map(function (entry) {
-      return '<div class="chronicle-entry"><b>' + escapeHtml(entry.event) + '</b><span>' + escapeHtml(entry.date) + ' · Next: ' + escapeHtml(entry.next) + '</span></div>';
-    }).join("");
-  }
 
   function bindPracticeChecks() {
     document.querySelectorAll("[data-practice-check]").forEach(function (checkbox) {
@@ -986,7 +1000,7 @@
     event.preventDefault();
     var entry = aarValues();
     state.aars.push(entry);
-    saveState(); renderChronicle();
+    saveState();
     event.target.reset();
     toast("AAR sealed in the local Chronicle.");
   });
@@ -1195,7 +1209,7 @@
     renderCampaignCalendar();
     renderQuickLinks();
     renderQuests();
-    renderChronicle();
+    renderCommandAttention();
     renderDraft();
     renderQueue();
     renderIntegrations();

@@ -123,3 +123,112 @@ test("only Captured and Drafted content requires attention", async ({ page }) =>
   }));
   expect(publishedOnly.content).toEqual([]);
 });
+
+test("Command Hall renders one Now item from the loaded plan with one primary action", async ({ page }) => {
+  await station(page);
+  const now = page.locator('[data-hall-region="now-next"]');
+  await expect(now.getByText("Loaded Academy plan", { exact:true })).toBeVisible();
+  await expect(now.getByText(/Command Hall uses the loaded Academy plan/)).toBeVisible();
+  await expect(now.locator(".command-item-copy h3")).toHaveCount(1);
+  await expect(now.locator(".command-primary-action").locator("a, button")).toHaveCount(1);
+  await expect(now.getByRole("link", { name:/Google Calendar/ })).toBeVisible();
+  await expect(now.locator("time")).toHaveAttribute("datetime", /^\d{4}-\d{2}-\d{2}$/);
+  await expect(now.locator(".item-type")).not.toBeEmpty();
+});
+
+test("This Week contains no more than three chronological operational rows", async ({ page }) => {
+  await station(page, "2027-01-06T12:00:00-07:00");
+  const rows = page.locator("#command-week-list .week-row");
+  expect(await rows.count()).toBeLessThanOrEqual(3);
+  expect(await rows.count()).toBeGreaterThan(0);
+  await expect(rows.locator(".week-action").locator("a, button")).toHaveCount(await rows.count());
+  const dates = await rows.locator("time").evaluateAll((nodes) => nodes.map((node) => node.dateTime));
+  expect(dates).toEqual([...dates].sort());
+  await expect(page.locator('[data-hall-region="this-week"]')).not.toContainText(/mini calendar/i);
+});
+
+test("Hall attention caps quests at five and keeps local quest controls", async ({ page }) => {
+  await page.clock.install({ time:new Date("2026-09-08T12:00:00-07:00") });
+  await page.addInitScript(() => localStorage.setItem("academyOS.phase1.v1", JSON.stringify({
+    quests:Array.from({ length:8 }, (_, index) => ({id:`test-${index}`,text:`Quest ${index}`,done:index === 6})),
+  })));
+  await page.goto("/");
+  await expect(page.locator("#quest-list .quest-item")).toHaveCount(5);
+  await expect(page.getByRole("textbox", { name:"New quest" })).toBeVisible();
+  await expect(page.getByRole("button", { name:"Add quest" })).toBeVisible();
+});
+
+test("required content attention renders and RinCon readiness is contextual", async ({ page }) => {
+  await page.clock.install({ time:new Date("2027-01-06T12:00:00-07:00") });
+  await page.addInitScript(() => localStorage.setItem("academyOS.phase1.v1", JSON.stringify({
+    contentQueue:[{id:"draft",stage:"Drafted",event:"Field note"}], quests:[],
+  })));
+  await page.goto("/");
+  await expect(page.getByText("Content review required")).toBeVisible();
+  await expect(page.locator("#rincon-attention")).toBeEmpty();
+
+  await page.clock.setFixedTime(new Date("2026-09-29T12:00:00-07:00"));
+  await page.reload();
+  await expect(page.getByText("Contextual readiness")).toBeVisible();
+});
+
+test("published content does not create Hall attention", async ({ page }) => {
+  await page.clock.install({ time:new Date("2027-01-06T12:00:00-07:00") });
+  await page.addInitScript(() => localStorage.setItem("academyOS.phase1.v1", JSON.stringify({
+    contentQueue:[{id:"done",stage:"Published"}], quests:[],
+  })));
+  await page.goto("/");
+  await expect(page.locator("#content-attention")).toBeEmpty();
+});
+
+test("Preceptor status is explicitly manual and disclaims live telemetry", async ({ page }) => {
+  await station(page);
+  const brief = page.locator(".preceptor-brief");
+  await expect(brief.getByText("Manual Preceptor state")).toBeVisible();
+  await expect(brief.locator(".manual-state")).toHaveText("Manual · Not set");
+  await expect(brief).toContainText("No manual brief has been entered");
+  await expect(brief).toContainText("not live agent telemetry");
+  await expect(brief).not.toContainText(/\d+%|ETA|online/i);
+});
+
+test("Tools contains exactly the five stable destinations", async ({ page }) => {
+  await station(page);
+  const tools = page.locator("#command-tools .tool-link");
+  await expect(tools).toHaveCount(5);
+  await expect(tools.locator("b")).toHaveText([
+    "Google Calendar", "Academy Drive Gateway", "Fighter Coach", "Tournament Scorer", "Reign Handbook",
+  ]);
+});
+
+test("legacy panels are removed and Hall has exactly three primary regions", async ({ page }) => {
+  await station(page);
+  await expect(page.locator("#view-hall [data-hall-region]")).toHaveCount(3);
+  await expect(page.locator("#view-hall")).not.toContainText("Whole-Fighter Doctrine");
+  await expect(page.locator("#view-hall")).not.toContainText("Recent Field Notes");
+  await expect(page.locator("#view-hall")).not.toContainText("Quick Launch");
+  await expect(page.locator("#view-hall")).not.toContainText(/project percentage|deployment|business lab/i);
+});
+
+for (const viewport of [{ name:"desktop", width:1440, height:900 }, { name:"mobile", width:390, height:844 }]) {
+  test(`${viewport.name} Hall is usable without horizontal overflow`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await station(page);
+    await expect(page.locator('[data-hall-region="now-next"]')).toBeVisible();
+    await expect(page.locator('[data-hall-region="this-week"]')).toBeVisible();
+    await expect(page.locator('[data-hall-region="attention-tools"]')).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+    expect(overflow).toBe(false);
+  });
+}
+
+test("Hall supports keyboard navigation and produces no console errors", async ({ page }) => {
+  const errors = [];
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+  page.on("pageerror", (error) => errors.push(error.message));
+  await station(page);
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name:"Skip to command content" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name:"Command Hall" })).toBeFocused();
+  expect(errors).toEqual([]);
+});

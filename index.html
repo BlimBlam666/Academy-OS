@@ -39,73 +39,47 @@
 
   <main id="main">
     <section class="view active" id="view-hall">
-      <div class="hero panel">
-        <div>
-          <p class="eyebrow">Phase I · Field Prototype</p>
-          <h2>One place to command the Academy.</h2>
-          <p>Gather the knowledge, prepare the field, record what happened, and turn worthy moments into stories that invite the next fighter through the gate.</p>
-        </div>
-        <div class="next-event">
-          <span class="sigil">I</span>
-          <div>
-            <small id="next-event-label">Next practice</small>
-            <strong id="next-event-course">Loading course rotation…</strong>
-            <span id="next-event-date">Calculating the next Wednesday…</span>
-            <span id="countdown">Calculating the march…</span>
+      <div class="hall-layout">
+        <section class="panel command-now" aria-labelledby="now-heading" data-hall-region="now-next">
+          <div class="region-heading">
+            <div><p class="eyebrow">First order</p><h2 id="now-heading">Now / Next</h2></div>
+            <span class="plan-seal">Loaded Academy plan</span>
           </div>
-        </div>
-      </div>
+          <div id="command-now-item" class="command-now-item" aria-live="polite"></div>
+          <p class="plan-note">Command Hall uses the loaded Academy plan. Google Calendar remains the scheduling destination.</p>
+          <a class="calendar-destination" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noopener">Open Google Calendar ↗</a>
+        </section>
 
-      <div class="dashboard-grid">
-        <article class="panel span-two">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Gatehouse</p>
-              <h3>Quick Launch</h3>
+        <section class="panel command-week" aria-labelledby="week-heading" data-hall-region="this-week">
+          <div class="region-heading"><div><p class="eyebrow">Campaign rhythm</p><h2 id="week-heading">This Week</h2></div><span id="week-range" class="subtle"></span></div>
+          <div id="command-week-list" class="command-week-list"></div>
+        </section>
+
+        <section class="panel command-attention" aria-labelledby="attention-heading" data-hall-region="attention-tools">
+          <div class="region-heading"><div><p class="eyebrow">Decisions and destinations</p><h2 id="attention-heading">Attention and Tools</h2></div></div>
+          <div class="attention-tools-grid">
+            <div class="attention-column">
+              <div class="subsection-heading"><h3>Attention</h3><span id="quest-count" class="count-badge">0</span></div>
+              <form id="quest-form" class="inline-form">
+                <label class="sr-only" for="quest-input">New quest</label>
+                <input id="quest-input" maxlength="120" placeholder="Name the next useful action" required>
+                <button class="primary-button" type="submit">Add quest</button>
+              </form>
+              <div id="quest-list" class="quest-list"></div>
+              <div id="content-attention"></div>
+              <div id="rincon-attention"></div>
+              <article class="preceptor-brief" aria-labelledby="preceptor-title">
+                <div><p class="eyebrow">Manual Preceptor state</p><h3 id="preceptor-title">Preceptor brief</h3></div>
+                <span id="preceptor-state" class="manual-state">Manual · Not set</span>
+                <p id="preceptor-note">No manual brief has been entered. This is not live agent telemetry.</p>
+              </article>
             </div>
-            <button class="quiet-button" data-go="integrations">Manage gates</button>
-          </div>
-          <div id="quick-links" class="quick-links"></div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Quest Ledger</p>
-              <h3>Active Work</h3>
+            <div class="tools-column">
+              <h3>Tools</h3>
+              <nav id="command-tools" class="command-tools" aria-label="Stable Academy tools"></nav>
             </div>
-            <span id="quest-count" class="count-badge">0</span>
           </div>
-          <form id="quest-form" class="inline-form">
-            <label class="sr-only" for="quest-input">New quest</label>
-            <input id="quest-input" maxlength="120" placeholder="Name the next useful action" required>
-            <button class="primary-button" type="submit">Add</button>
-          </form>
-          <div id="quest-list" class="quest-list"></div>
-        </article>
-
-        <article class="panel">
-          <p class="eyebrow">Whole-Fighter Doctrine</p>
-          <h3>Five disciplines</h3>
-          <div class="doctrine-list">
-            <span><b>Body</b> readiness and endurance</span>
-            <span><b>Craft</b> technique and equipment</span>
-            <span><b>Mind</b> judgment and adaptation</span>
-            <span><b>Character</b> discipline and courage</span>
-            <span><b>Fellowship</b> teaching and belonging</span>
-          </div>
-        </article>
-
-        <article class="panel span-two">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Captain's Chronicle</p>
-              <h3>Recent Field Notes</h3>
-            </div>
-            <button class="quiet-button" data-go="practice">Write an AAR</button>
-          </div>
-          <div id="chronicle-list" class="chronicle-list empty-state">No entries yet. The first honest record begins the archive.</div>
-        </article>
+        </section>
       </div>
     </section>
 
